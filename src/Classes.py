@@ -1,4 +1,5 @@
 import numpy as np
+import bisect
 
 class Event:
     event_count = 0
@@ -42,10 +43,13 @@ class Timeline:
         birth_event = birth if not (birth is None) else Event(date=0, height=0, timeline=self.__id)
         death_event = death if not (death is None) else Event(date=birth_event.date+1, height=0, timeline=self.__id)
         birth_event.timeline = death_event.timeline = self.__id
-        self.events = [b.get_id() for b in sorted([birth_event, death_event])]
+        self.events = sorted([birth_event, death_event])
     
     def get_id(self):
         return(self.__id)
     
     def set_id(self, new_id):
         self.__id = new_id
+
+    def insert_event(self, event_inserted):
+        bisect.insort(self.events, event_inserted)
