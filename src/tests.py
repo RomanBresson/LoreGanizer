@@ -1,4 +1,4 @@
-from Classes import Event, Timeline, delete_event
+from Classes import Event, Timeline, delete_event, delete_timeline
 import unittest
 
 class TestStringMethods(unittest.TestCase):
@@ -105,15 +105,55 @@ class TestStringMethods(unittest.TestCase):
         event3 = Event(date=10)
         timeline0 = Timeline(event0, event1)
         timeline1 = Timeline(event0, event1)
-        timeline1.insert_event(event2)
         timeline0.insert_event(event2)
         timeline0.insert_event(event3)
+        timeline1.insert_event(event2)
         self.assertEqual([e.get_id() for e in timeline1.events],[0,2,1])
         delete_event(event0)
         self.assertEqual([e.get_id() for e in timeline1.events],[2,1])
         delete_event(event1)
         self.assertEqual(Timeline.free_ids,[1])
+        self.assertEqual(Event.free_ids,[0,1])
+        event5 = Event(date=10)
+        self.assertEqual(Event.free_ids,[1])
+        self.assertEqual(event5.get_id(),0)
         self.assertEqual(list(Timeline.timeline_dict.keys()),[0])
+
+    def test_delete_timeline(self):
+        Event.event_dict = {}
+        Event.free_ids = []
+        Timeline.timeline_dict = {}
+        Timeline.free_ids = []
+        event0 = Event(date=0)
+        event1 = Event(date=5)
+        event2 = Event(date=3)
+        event3 = Event(date=10)
+        timeline0 = Timeline(event0, event1)
+        timeline1 = Timeline(event0, event1)
+        timeline0.insert_event(event2)
+        timeline1.insert_event(event2)
+        timeline0.insert_event(event3)
+        self.assertEqual(Timeline.free_ids,[])
+        self.assertEqual(list(Timeline.timeline_dict.keys()), [0,1])
+        self.assertEqual(event0.timelines,[0,1])
+        self.assertEqual(event1.timelines,[0,1])
+        self.assertEqual(event2.timelines,[0,1])
+        self.assertEqual(event3.timelines,[0])
+        delete_timeline(timeline1)  
+        self.assertEqual(Timeline.free_ids,[1])
+        self.assertEqual(list(Timeline.timeline_dict.keys()), [0])
+        self.assertEqual(event0.timelines,[0])
+        self.assertEqual(event1.timelines,[0])
+        self.assertEqual(event2.timelines,[0])
+        self.assertEqual(event3.timelines,[0])
+        delete_timeline(timeline0)
+        self.assertEqual(Timeline.free_ids,[1,0])
+        self.assertEqual(list(Timeline.timeline_dict.keys()), [])
+        self.assertEqual(event0.timelines,[])
+        self.assertEqual(event1.timelines,[])
+        self.assertEqual(event2.timelines,[])
+        self.assertEqual(event3.timelines,[])
+
 
 if __name__ == '__main__':
     unittest.main()
