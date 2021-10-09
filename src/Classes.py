@@ -31,8 +31,11 @@ class Event:
     def set_id(self, new_id):
         self.__id = new_id
 
-    def set_sort_description(self, desc):
-        self.short_description = desc[:100]
+    def set_short_description(self, desc):
+        self.short_description = desc[:50]
+    
+    def get_short_description(self):
+        return(self.short_description)
 
 class Timeline:
     timeline_dict = {}
