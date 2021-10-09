@@ -54,3 +54,23 @@ class Timeline:
 
     def insert_event(self, event_inserted):
         bisect.insort(self.events, event_inserted)
+        event_inserted.timelines.append(self.__id)
+
+def delete_timeline(tl):
+    Timeline.free_ids.append(tl.get_id())
+    for ev in tl.events:
+        ev.timelines.remove(tl.get_id())
+    del Timeline.timeline_dict[tl.get_id()]
+    del tl
+
+def delete_event(ev):
+    Event.free_ids.append(ev.get_id())
+    marked_for_deletion = []
+    for tl in ev.timelines:
+        Timeline.timeline_dict[tl].events.remove(ev)
+        if (len(Timeline.timeline_dict[tl].events)<=1):
+            marked_for_deletion.append(tl)
+    for tl in marked_for_deletion:
+        delete_timeline(Timeline.timeline_dict[tl])
+    del Event.event_dict[ev.get_id()]
+    del ev
