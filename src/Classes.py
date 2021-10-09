@@ -4,16 +4,16 @@ import bisect
 class Event:
     event_dict = {}
     free_ids = []
-    def __init__(self, id_nb=None, date=0., height=0., timeline=None, short_description=None, long_description=None):
+    def __init__(self, id_nb=None, date=0., height=0., timelines=None, short_description=None, long_description=None):
         if id_nb is None:
-            self.__id_nb = self.free_ids.pop(0) if (len(self.free_ids)>0) else len(self.event_dict)
+            self.__id_nb = Event.free_ids.pop(0) if (len(Event.free_ids)>0) else (max(Event.event_dict,default=-1)+1)
         else:
             self.__id_nb = id_nb
         self.date = date
         self.height = height
-        self.timelines = timeline if not (timeline is None) else []
+        self.timelines = timelines if not (timelines is None) else []
         self.__class__.event_dict[self.__id_nb] = self
-        self.__short_description = "" if short_description is None else short_description
+        self.set_short_description("" if short_description is None else short_description)
         self.long_description  = "" if long_description is None else long_description
 
     def __gt__(self, other):
@@ -45,19 +45,22 @@ class Timeline:
     free_ids = []
     def __init__(self, birth=None, death=None, id_nb=None, events=None):
         if id_nb is None:
-            self.__id_nb = self.free_ids.pop(0) if (len(self.free_ids)>0) else len(self.timeline_dict)
+            self.__id_nb = Timeline.free_ids.pop(0) if (len(Timeline.free_ids)>0) else (max(Timeline.timeline_dict,default=-1)+1)
         else:
             self.__id_nb = id_nb
         Timeline.timeline_dict[self.__id_nb] = self
-        if events is None:
-            birth_event = birth if not (birth is None) else Event(date=0, height=0, timeline=[])
-            death_event = death if not (death is None) else Event(date=birth_event.date+1, height=0, timeline=[])
+        if (events is None):
+            birth_event = birth if not (birth is None) else Event(date=0, height=0, timelines=[])
+            death_event = death if not (death is None) else Event(date=birth_event.date+1, height=0, timelines=[])
             birth_event.timelines.append(self.__id_nb)
             death_event.timelines.append(self.__id_nb)
             self.events = [ev.get_id() for ev in sorted([birth_event, death_event])]
         else:
-            self.events = events
-    
+            assert(len(events)>=2)
+            self.events = []
+            for ev in events:
+                self.insert_event(Event.event_dict[ev])
+
     def get_id(self):
         return(self.__id_nb)
     
@@ -65,7 +68,9 @@ class Timeline:
         self.__id_nb = new_id
 
     def insert_event(self, event_inserted):
-        if (event_inserted>(Event.event_dict[self.events[-1]])):
+        if (len(self.events)==0):
+            self.events.append(event_inserted.get_id())
+        elif (event_inserted>(Event.event_dict[self.events[-1]])):
             self.events.append(event_inserted.get_id())
         else:
             for i,ev_id in enumerate(self.events):

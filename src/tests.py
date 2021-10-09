@@ -1,4 +1,5 @@
 from Classes import Event, Timeline, delete_event, delete_timeline
+from Session import *
 import unittest
 
 class TestStringMethods(unittest.TestCase):
@@ -221,6 +222,48 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(event1.timelines,[])
         self.assertEqual(event2.timelines,[])
         self.assertEqual(event3.timelines,[])
+
+    def test_load_save_event(self):
+        Event.event_dict = {}
+        Event.free_ids = []
+        Timeline.timeline_dict = {}
+        Timeline.free_ids = []
+        event0 = Event(date=0)
+        event1 = Event(date=5)
+        event2 = Event(date=3)
+        event3 = Event(date=10)
+        delete_event(event2)
+        json_save("session_test")
+        Event.event_dict = {}
+        Event.free_ids = []
+        json_load("session_test")
+        self.assertEqual(list(Event.event_dict.keys()), [0,1,3])
+        self.assertEqual([ev.date for ev in Event.event_dict.values()], [0,5,10])
+    
+    def test_load_save_timeline(self):
+        Event.event_dict = {}
+        Event.free_ids = []
+        Timeline.timeline_dict = {}
+        Timeline.free_ids = []
+        event0 = Event(date=10)
+        event1 = Event(date=5)
+        event2 = Event(date=3)
+        event3 = Event(date=0)
+        delete_event(event2)
+        timeline1 = Timeline()
+        timeline2 = Timeline(id_nb=5)
+        Timeline.free_ids = [1,2,3,4]
+        timeline3 = Timeline(events=[0,3])
+        json_save("session_test")
+        Event.event_dict = {}
+        Event.free_ids = []
+        Timeline.timeline_dict = {}
+        Timeline.free_ids = []
+        json_load("session_test")
+        self.assertEqual(list(Timeline.timeline_dict.keys()), [0,5,1])
+        self.assertEqual(Timeline.timeline_dict[0].events, [2,4])
+        self.assertEqual(Timeline.timeline_dict[5].events, [5,6])
+        self.assertEqual(Timeline.timeline_dict[1].events, [3,0])
 
 if __name__ == '__main__':
     unittest.main()
