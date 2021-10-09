@@ -2,14 +2,13 @@ import numpy as np
 import bisect
 
 class Event:
-    event_count = 0
     event_dict = {}
+    free_ids = []
     def __init__(self, date=0., height=0., timeline=None):
-        self.__id = self.__class__.event_count
-        self.__class__.event_count += 1
+        self.__id = self.free_ids.pop() if (len(self.free_ids)>0) else len(self.event_dict)
         self.date = date
         self.height = height
-        self.timeline = timeline
+        self.timelines = timeline if not (timeline is None) else []
         self.__class__.event_dict[self.__id] = self
         self.__short_description = ""
         self.long_description  = ""
@@ -36,13 +35,14 @@ class Event:
         self.short_description = desc[:100]
 
 class Timeline:
-    timeline_count = 0
+    timeline_dict = {}
+    free_ids = []
     def __init__(self, birth=None, death=None):
-        self.__class__.timeline_count += 1
-        self.__id = self.__class__.timeline_count
-        birth_event = birth if not (birth is None) else Event(date=0, height=0, timeline=self.__id)
-        death_event = death if not (death is None) else Event(date=birth_event.date+1, height=0, timeline=self.__id)
-        birth_event.timeline = death_event.timeline = self.__id
+        self.__id = self.free_ids.pop() if (len(self.free_ids)>0) else len(self.timeline_dict)
+        birth_event = birth if not (birth is None) else Event(date=0, height=0, timeline=[])
+        death_event = death if not (death is None) else Event(date=birth_event.date+1, height=0, timeline=[])
+        birth_event.timelines.append(self.__id)
+        death_event.timelines.append(self.__id)
         self.events = sorted([birth_event, death_event])
     
     def get_id(self):
