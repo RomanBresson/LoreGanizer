@@ -15,9 +15,3 @@ def load(session_name):
     with open(dirpath+'/events.json', 'r') as eventfile:
         json_obj = json.load(eventfile)
     print(json_obj['1'])
-
-A = Event(10,11)
-B = Event(15,12)
-Z = Timeline(A,B)
-save('coucou')
-load('coucou')
