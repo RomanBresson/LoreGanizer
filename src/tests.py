@@ -73,7 +73,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(event2.timelines, [0])
         self.assertEqual(event3.timelines, [0])
         self.assertEqual(event4.timelines, [0])
-    
+
     def test_delete_event(self):
         Event.event_dict = {}
         Event.free_ids = []
@@ -93,7 +93,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(len(Event.event_dict), 3)
         self.assertEqual([e.get_id() for e in Event.event_dict.values()],[0,3,4])
         self.assertEqual([e.date for e in Event.event_dict.values()],[0,-3,8])
-    
+
     def test_delete_event2(self):
         Event.event_dict = {}
         Event.free_ids = []
