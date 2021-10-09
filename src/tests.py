@@ -30,7 +30,7 @@ class TestStringMethods(unittest.TestCase):
         Event.event_dict = {}
         Timeline.timeline_count = 0
         timeline1 = Timeline()
-        self.assertEqual(timeline1.events, [0,1])
+        self.assertEqual([e.get_id() for e in timeline1.events], [0,1])
 
     def test_init_timelines(self):
         Event.event_count = 0
@@ -41,8 +41,26 @@ class TestStringMethods(unittest.TestCase):
         timeline1 = Timeline()
         timeline2 = Timeline(event1, event2)
         self.assertEqual(Event.event_count,4)
-        self.assertEqual(timeline1.events, [2,3])
-        self.assertEqual(timeline2.events, [1,0])
+        self.assertEqual([e.get_id() for e in timeline1.events], [2,3])
+        self.assertEqual([e.get_id() for e in timeline2.events], [1,0])
+
+    def test_insert_timelines(self):
+        Event.event_count = 0
+        Event.event_dict = {}
+        Timeline.timeline_count = 0
+        event0 = Event(date=0)
+        event1 = Event(date=5)
+        event2 = Event(date=3)
+        event3 = Event(date=-3)
+        event4 = Event(date=8)
+        timeline1 = Timeline(event0, event1)
+        self.assertEqual([e.get_id() for e in timeline1.events], [0,1])
+        timeline1.insert_event(event2)
+        self.assertEqual([e.get_id() for e in timeline1.events], [0,2,1])
+        timeline1.insert_event(event4)
+        self.assertEqual([e.get_id() for e in timeline1.events], [0,2,1,4])
+        timeline1.insert_event(event3)
+        self.assertEqual([e.get_id() for e in timeline1.events], [3,0,2,1,4])
 
 if __name__ == '__main__':
     unittest.main()
