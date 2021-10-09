@@ -1,10 +1,13 @@
-from Classes import Event, Timeline
+from Classes import Event, Timeline, delete_event
 import unittest
 
 class TestStringMethods(unittest.TestCase):
 
     def test_init_event(self):
         Event.event_dict = {}
+        Event.free_ids = []
+        Timeline.timeline_dict = {}
+        Timeline.free_ids = []
         event1 = Event()
         event2 = Event()
         self.assertEqual(event1.date,0)
@@ -16,6 +19,9 @@ class TestStringMethods(unittest.TestCase):
     
     def test_comp_event(self):
         Event.event_dict = {}
+        Event.free_ids = []
+        Timeline.timeline_dict = {}
+        Timeline.free_ids = []
         event1 = Event(date=10)
         event2 = Event(date=8)
         self.assertGreater(event1, event2)
@@ -25,13 +31,17 @@ class TestStringMethods(unittest.TestCase):
 
     def test_init_timeline(self):
         Event.event_dict = {}
+        Event.free_ids = []
         Timeline.timeline_dict = {}
+        Timeline.free_ids = []
         timeline1 = Timeline()
         self.assertEqual([e.get_id() for e in timeline1.events], [0,1])
 
     def test_init_timelines(self):
         Event.event_dict = {}
+        Event.free_ids = []
         Timeline.timeline_dict = {}
+        Timeline.free_ids = []
         event1 = Event(date=10)
         event2 = Event(date=8)
         timeline1 = Timeline()
@@ -42,7 +52,9 @@ class TestStringMethods(unittest.TestCase):
 
     def test_insert_timelines(self):
         Event.event_dict = {}
+        Event.free_ids = []
         Timeline.timeline_dict = {}
+        Timeline.free_ids = []
         event0 = Event(date=0)
         event1 = Event(date=5)
         event2 = Event(date=3)

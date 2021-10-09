@@ -39,6 +39,7 @@ class Timeline:
     free_ids = []
     def __init__(self, birth=None, death=None):
         self.__id = self.free_ids.pop() if (len(self.free_ids)>0) else len(self.timeline_dict)
+        Timeline.timeline_dict[self.__id] = self
         birth_event = birth if not (birth is None) else Event(date=0, height=0, timeline=[])
         death_event = death if not (death is None) else Event(date=birth_event.date+1, height=0, timeline=[])
         birth_event.timelines.append(self.__id)
