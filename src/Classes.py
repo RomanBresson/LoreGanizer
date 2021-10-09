@@ -5,7 +5,7 @@ class Event:
     event_dict = {}
     free_ids = []
     def __init__(self, date=0., height=0., timeline=None):
-        self.__id = self.free_ids.pop() if (len(self.free_ids)>0) else len(self.event_dict)
+        self.__id = self.free_ids.pop(0) if (len(self.free_ids)>0) else len(self.event_dict)
         self.date = date
         self.height = height
         self.timelines = timeline if not (timeline is None) else []
@@ -38,7 +38,7 @@ class Timeline:
     timeline_dict = {}
     free_ids = []
     def __init__(self, birth=None, death=None):
-        self.__id = self.free_ids.pop() if (len(self.free_ids)>0) else len(self.timeline_dict)
+        self.__id = self.free_ids.pop(0) if (len(self.free_ids)>0) else len(self.timeline_dict)
         Timeline.timeline_dict[self.__id] = self
         birth_event = birth if not (birth is None) else Event(date=0, height=0, timeline=[])
         death_event = death if not (death is None) else Event(date=birth_event.date+1, height=0, timeline=[])
