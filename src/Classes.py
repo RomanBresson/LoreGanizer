@@ -47,7 +47,7 @@ class Timeline:
         death_event = death if not (death is None) else Event(date=birth_event.date+1, height=0, timeline=[])
         birth_event.timelines.append(self.__id)
         death_event.timelines.append(self.__id)
-        self.events = sorted([birth_event, death_event])
+        self.events = [ev.get_id() for ev in sorted([birth_event, death_event])]
     
     def get_id(self):
         return(self.__id)
@@ -56,13 +56,19 @@ class Timeline:
         self.__id = new_id
 
     def insert_event(self, event_inserted):
-        bisect.insort(self.events, event_inserted)
+        if (event_inserted>(Event.event_dict[self.events[-1]])):
+            self.events.append(event_inserted.get_id())
+        else:
+            for i,ev_id in enumerate(self.events):
+                if (event_inserted<(Event.event_dict[ev_id])):
+                    break
+            self.events = self.events[:i] + [event_inserted.get_id()] + self.events[i:]
         event_inserted.timelines.append(self.__id)
 
 def delete_timeline(tl):
     Timeline.free_ids.append(tl.get_id())
     for ev in tl.events:
-        ev.timelines.remove(tl.get_id())
+        Event.event_dict[ev].timelines.remove(tl.get_id())
     del Timeline.timeline_dict[tl.get_id()]
     del tl
 
@@ -70,7 +76,7 @@ def delete_event(ev):
     Event.free_ids.append(ev.get_id())
     marked_for_deletion = []
     for tl in ev.timelines:
-        Timeline.timeline_dict[tl].events.remove(ev)
+        Timeline.timeline_dict[tl].events.remove(ev.get_id())
         if (len(Timeline.timeline_dict[tl].events)<=1):
             marked_for_deletion.append(tl)
     for tl in marked_for_deletion:
