@@ -9,9 +9,9 @@ def json_save(session_name):
     if not os.path.exists(dirpath):
         os.makedirs(dirpath)
     with open(dirpath+'/events.json', 'w') as outfile:
-        json.dump(events_str, outfile)
+        json.dump(events_str, outfile, indent=4)
     with open(dirpath+'/timelines.json', 'w') as outfile:
-        json.dump(timelines_str, outfile)
+        json.dump(timelines_str, outfile, indent=4)
 
 def json_load(session_name):
     Event.event_dict = {}
