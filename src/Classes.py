@@ -43,7 +43,7 @@ class Event:
 class Timeline:
     timeline_dict = {}
     free_ids = []
-    def __init__(self, birth=None, death=None, id_nb=None, events=None):
+    def __init__(self, birth=None, death=None, id_nb=None, events=None, name=None):
         if id_nb is None:
             self.__id_nb = Timeline.free_ids.pop(0) if (len(Timeline.free_ids)>0) else (max(Timeline.timeline_dict,default=-1)+1)
         else:
@@ -60,6 +60,10 @@ class Timeline:
             self.events = []
             for ev in events:
                 self.insert_event(Event.event_dict[ev])
+        if name is None:
+            self.name = ""
+        else:
+            self.name = name
 
     def get_id(self):
         return(self.__id_nb)
@@ -97,3 +101,10 @@ def delete_event(ev):
         delete_timeline(Timeline.timeline_dict[tl])
     del Event.event_dict[ev.get_id()]
     del ev
+
+def make_timelines_from_events():
+    all_ids = set()
+    for ev_id, ev in Event.event_dict.items():
+        all_ids = all_ids.union(ev.timelines)
+    for tl_id in all_ids:
+        tl = Timeline(id_nb=tl_id, events=[ev.get_id() for ev in Event.event_dict.values() if tl_id in ev.timelines])
