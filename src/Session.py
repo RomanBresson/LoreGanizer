@@ -1,10 +1,11 @@
+from sqlite3 import Time
 from Classes import *
 import json
 import os
 
 def json_save(session_name):
     events_str = {i:Event.event_dict[i].__dict__ for i in Event.event_dict}
-    timelines_str = {i:Timeline.timeline_dict[i].__dict__ for i in Timeline.timeline_dict}
+    timelines_str = {i:Timeline.timeline_dict[i].name for i in Timeline.timeline_dict}
     dirpath = f'data/{session_name}'
     if not os.path.exists(dirpath):
         os.makedirs(dirpath)
@@ -25,12 +26,11 @@ def json_load(session_name):
         ev["id_nb"] = ev["_Event__id_nb"]
         del ev["_Event__id_nb"]
         Event(**ev)
+    make_timelines_from_events()
     with open(dirpath+'/timelines.json', 'r') as infile:
         tl_json = json.load(infile)
-    for tl in tl_json.values():
-        tl["id_nb"] = tl["_Timeline__id_nb"]
-        del tl["_Timeline__id_nb"]
-        Timeline(**tl)
+    for tl_id,tl_name in tl_json.items():
+        Timeline.timeline_dict[int(tl_id)].name = tl_name
     autocomplete_free_ids_events()
     autocomplete_free_ids_timelines()
 

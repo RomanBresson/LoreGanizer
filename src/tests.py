@@ -260,7 +260,7 @@ class TestStringMethods(unittest.TestCase):
         Timeline.timeline_dict = {}
         Timeline.free_ids = []
         json_load("session_test")
-        self.assertEqual(list(Timeline.timeline_dict.keys()), [0,5,1])
+        self.assertEqual(set(list(Timeline.timeline_dict.keys())), set([0,5,1]))
         self.assertEqual(Timeline.timeline_dict[0].events, [2,4])
         self.assertEqual(Timeline.timeline_dict[5].events, [5,6])
         self.assertEqual(Timeline.timeline_dict[1].events, [3,0])
