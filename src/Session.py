@@ -4,6 +4,8 @@ import json
 import os
 
 def json_save(session_name):
+    for event in Event.event_dict.values():
+        event.timelines.sort()
     events_str = {i:Event.event_dict[i].__dict__ for i in Event.event_dict}
     timelines_str = {i:Timeline.timeline_dict[i].name for i in Timeline.timeline_dict}
     dirpath = f'data/{session_name}'
