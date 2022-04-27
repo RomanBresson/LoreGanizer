@@ -20,38 +20,49 @@ from PyQt5.QtWidgets import (
 )
 
 NODE_DIAMETER = 10
+LINE_WIDTH = 10
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event):
-        super().__init__(0, 0, NODE_DIAMETER, NODE_DIAMETER)
+        print(event.timelines)
+        super().__init__(0, 0, NODE_DIAMETER, NODE_DIAMETER*(max(1,len(event.timelines))))
         tls = event.timelines
         if len(tls)>0:
             event.height = sum(tls)/len(tls)
         self.setPos(event.date*500, event.height*100)
         self.event = event
 
-        brush = QBrush(Qt.blue)
+        brush = QBrush(Qt.white)
         self.setBrush(brush)
 
-        pen = QPen(Qt.cyan)
+        pen = QPen(Qt.black)
         pen.setWidth(1)
         self.setPen(pen)
         self.lines = []
     
-    def itemChange(self, change, value):
+    def mouseReleaseEvent(self, change):
         for line in self.lines:
             line.updateLine(self)
-        return super().itemChange(change, value)
+        return super().mouseReleaseEvent(change)
 
 class Connection(QGraphicsLineItem):
-    def __init__(self, start, end):
+    def __init__(self, start, end, tl_id, color=Qt.black):
         super().__init__()
         self.start = start
         self.end = end
+        self.timeline = tl_id
         start.lines.append(self)
         end.lines.append(self)
-        self._line = QLineF(start.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2), end.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2))
+        self.compute_shifts()
         self.setLine(self._line)
+        pen = QPen(color)
+        pen.setWidth(LINE_WIDTH)
+        self.setPen(pen)
+
+    def compute_shifts(self):
+        shift_down_start = self.start.event.timelines.index(self.timeline)
+        shift_down_end = self.end.event.timelines.index(self.timeline)
+        self._line = QLineF(self.start.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2+shift_down_start*LINE_WIDTH), self.end.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2 + shift_down_end*LINE_WIDTH))
 
     def extremities(self):
         return self.start, self.end
@@ -69,10 +80,11 @@ class Connection(QGraphicsLineItem):
         self.updateLine(end)
 
     def updateLine(self, source):
+        shift_down = source.event.timelines.index(self.timeline)
         if source == self.start:
-            self._line.setP1(source.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2))
+            self._line.setP1(source.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2 + LINE_WIDTH*shift_down))
         else:
-            self._line.setP2(source.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2))
+            self._line.setP2(source.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2 + LINE_WIDTH*shift_down))
         self.setLine(self._line)
 
 class Window(QWidget):
@@ -93,13 +105,17 @@ class Window(QWidget):
             event_node = EventNode(event)
             
             # Add the items to the scene. Items are stacked in the order they are added.
-            self.scene.addItem(event_node)
             events_nodes[event_id] = event_node
         
+        colors = [Qt.cyan, Qt.red, Qt.yellow, Qt.green, Qt.magenta, Qt.blue, Qt.black]
+
         for timeline_id, timeline in timelines_dict.items():
             for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
-                connection = Connection(events_nodes[e1], events_nodes[e2])
+                connection = Connection(events_nodes[e1], events_nodes[e2], tl_id = timeline.get_id(), color=colors[timeline.get_id()%len(colors)])
                 self.scene.addItem(connection)
+        
+        for event_node in events_nodes.values():
+            self.scene.addItem(event_node)
 
         # Set all items as moveable and selectable.
         for item in self.scene.items():
@@ -111,7 +127,7 @@ class Window(QWidget):
         xmax = max([e.scenePos().x() for e in events_nodes.values()])
         ymin = min([e.scenePos().y() for e in events_nodes.values()])
         ymax = max([e.scenePos().y() for e in events_nodes.values()])
-        self.scene.setSceneRect(xmin, ymin, xmax, ymax)
+        self.scene.setSceneRect(xmin-100, ymin-100, xmax-xmin+100, ymax-ymin+100)
         
         # Define our layout.
         vbox = QVBoxLayout()
