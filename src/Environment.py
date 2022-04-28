@@ -28,7 +28,7 @@ class EventNode(QGraphicsEllipseItem):
         tls = event.timelines
         if len(tls)>0:
             event.height = sum(tls)/len(tls)
-        self.setPos(event.date*500, event.height*100)
+        self.setPos(event.get_date()*500, event.height*100)
         self.event = event
 
         brush = QBrush(Qt.white)
