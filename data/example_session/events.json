@@ -1,139 +1,139 @@
 {
     "0": {
         "_Event__id_nb": 0,
-        "date": 0,
+        "_Event__date": 0,
         "height": 0.0,
         "timelines": [
             0
         ],
-        "short_description": "Liss birth",
-        "long_description": "Liss is born"
+        "short_description": "CharA birth",
+        "long_description": "CharA is born"
     },
     "1": {
         "_Event__id_nb": 1,
-        "date": 2,
+        "_Event__date": 2,
         "height": 0.0,
         "timelines": [
             0
         ],
-        "short_description": "Liss starts school",
-        "long_description": "Liss starts going to school"
+        "short_description": "CharA starts school",
+        "long_description": "CharA starts going to school"
     },
     "2": {
         "_Event__id_nb": 2,
-        "date": 19,
+        "_Event__date": 19,
         "height": 0.0,
         "timelines": [
             0
         ],
-        "short_description": "Meets <C>",
-        "long_description": "Liss meets <C> in her bar"
+        "short_description": "Meets CharD",
+        "long_description": "CharA meets CharD in her bar"
     },
     "3": {
         "_Event__id_nb": 3,
-        "date": 19.75,
+        "_Event__date": 19.75,
         "height": 0.0,
         "timelines": [
             0
         ],
-        "short_description": "Father killed",
-        "long_description": "Liss gets her father killed by hiring merchs"
+        "short_description": "Eats with CharD",
+        "long_description": "CharA goes to the restaurant with CharD"
     },
     "4": {
         "_Event__id_nb": 4,
-        "date": 20,
+        "_Event__date": 20,
         "height": 0.0,
         "timelines": [
             0
         ],
-        "short_description": "Liss banned",
-        "long_description": "Liss is confronted and banned by her mother"
+        "short_description": "CharA sick",
+        "long_description": "CharA gets sick because of the restaurant"
     },
     "5": {
         "_Event__id_nb": 5,
-        "date": 20.02,
+        "_Event__date": 20.02,
         "height": 0.0,
         "timelines": [
             0
         ],
-        "short_description": "Flees to BioMatChi",
-        "long_description": "Liss crosses the border to BioMatChi with <C>"
+        "short_description": "Goes to the doctor",
+        "long_description": "CharA goes to receive a treetment, gets prescribed some medicine"
     },
     "6": {
         "_Event__id_nb": 6,
-        "date": 20.2,
+        "_Event__date": 20.2,
         "height": 0.0,
         "timelines": [
             0,
             1
         ],
-        "short_description": "Liss Meets Nelvan",
-        "long_description": "Liss meets Nelvan for the first time"
+        "short_description": "CharA Meets CharB",
+        "long_description": "CharA meets CharB for the first time"
     },
     "7": {
         "_Event__id_nb": 7,
-        "date": 21,
+        "_Event__date": 21,
         "height": 0.0,
         "timelines": [
             0
         ],
-        "short_description": "Returns to DecDir",
-        "long_description": "Liss returns to DecDir alone"
+        "short_description": "Returns home",
+        "long_description": "CharA returns to their home alone"
     },
     "8": {
         "_Event__id_nb": 8,
-        "date": 0,
+        "_Event__date": 0,
         "height": 0.0,
         "timelines": [
             1
         ],
-        "short_description": "Kills boss",
-        "long_description": "Nelvan kills his former boss, reaching his current position"
+        "short_description": "Gets a promotion",
+        "long_description": "CharB gets a promotion at work, they are now a regional manager"
     },
     "9": {
         "_Event__id_nb": 9,
-        "date": 22,
+        "_Event__date": 22,
         "height": 0.0,
         "timelines": [
             1
         ],
-        "short_description": "Blackmails governor",
-        "long_description": "Nelvan blackmails the governor into giving him an entire neighborhood"
+        "short_description": "Becomes CEO",
+        "long_description": "CharB's boss retires, and they get the job because of theur performance"
     },
     "10": {
         "_Event__id_nb": 10,
-        "date": 17,
+        "_Event__date": 17,
         "height": 0.0,
         "timelines": [
             1,
             2
         ],
-        "short_description": "Nelvan Meets Sharolk",
-        "long_description": "Nelvan meets the uncanny doctor for the first tome"
+        "short_description": "CharB Meets CharC",
+        "long_description": "CharB meets CharC for the first time at the football field"
     },
     "11": {
         "_Event__id_nb": 11,
-        "date": -20,
+        "_Event__date": -20,
         "height": 0.0,
         "timelines": [
             2
         ],
-        "short_description": "Sharolk birth",
-        "long_description": "Sharolk is born in a research neighborhood"
+        "short_description": "CharC birth",
+        "long_description": "CharC is born in a close city, at the top of a tower"
     },
     "12": {
         "_Event__id_nb": 12,
-        "date": 18,
+        "_Event__date": 18,
         "height": 0.0,
         "timelines": [
             2
         ],
         "short_description": "Starts working on project",
-        "long_description": "Agrees with Nelvan and starts working on ways to grow food"
+        "long_description": "Agrees with CharB and starts working on ways to make the sales better"
     },
     "13": {
         "_Event__id_nb": 13,
-        "date": 20.5,
+        "_Event__date": 20.5,
         "height": 0.0,
         "timelines": [
             0,
@@ -141,6 +141,6 @@
             2
         ],
         "short_description": "All meet",
-        "long_description": "Nelvan makes Sharolk and Liss meet"
+        "long_description": "CharB makes CharC and CharA meet"
     }
 }
