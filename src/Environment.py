@@ -21,6 +21,8 @@ from PyQt5.QtWidgets import (
 
 NODE_DIAMETER = 10
 LINE_WIDTH = 8
+DILATION_FACTOR_DATE = 500
+DILATION_FACTOR_HEIGHT = 100
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event):
@@ -28,7 +30,7 @@ class EventNode(QGraphicsEllipseItem):
         tls = event.timelines
         if len(tls)>0:
             event.height = sum(tls)/len(tls)
-        self.setPos(event.get_date()*500, event.height*100)
+        self.setPos(event.get_date()*DILATION_FACTOR_DATE, event.height*DILATION_FACTOR_HEIGHT)
         self.event = event
 
         brush = QBrush(Qt.white)
@@ -49,6 +51,8 @@ class EventNode(QGraphicsEllipseItem):
     def mouseReleaseEvent(self, change):
         for line in self.lines:
             line.updateLine(self)
+        new_date = self.scenePos().x()/DILATION_FACTOR_DATE
+        self.event.set_date(new_date)
         return super().mouseReleaseEvent(change)
 
 class Connection(QGraphicsLineItem):
