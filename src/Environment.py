@@ -8,6 +8,8 @@ import sys
 from PyQt5.QtCore import Qt, QLineF, QPointF
 from PyQt5.QtGui import QBrush, QPainter, QPen
 from PyQt5.QtWidgets import (
+    QPushButton,
+    QToolBar,
     QApplication,
     QGraphicsEllipseItem,
     QGraphicsItem,
@@ -17,12 +19,15 @@ from PyQt5.QtWidgets import (
     QHBoxLayout,
     QVBoxLayout,
     QWidget,
+    QAction,
+    QMainWindow
 )
 
 NODE_DIAMETER = 10
 LINE_WIDTH = 8
 DILATION_FACTOR_DATE = 500
 DILATION_FACTOR_HEIGHT = 100
+SESSION_NAME = "trial_session"
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):
@@ -118,8 +123,8 @@ class Connection(QGraphicsLineItem):
         self.setLine(self._line)
 
 class Window(QWidget):
-    def __init__(self, events_dict = None, timelines_dict = None):
-        super().__init__()
+    def __init__(self, events_dict = None, timelines_dict = None, parent=None):
+        super().__init__(parent=parent)
         self.setStyleSheet("background-color: gray;")
 
         # Defining a scene rect of 400x200, with it's origin at 0,0.
@@ -161,7 +166,7 @@ class Window(QWidget):
         ymin = min([e.scenePos().y() for e in self.events_nodes.values()])
         ymax = max([e.scenePos().y() for e in self.events_nodes.values()])
         self.scene.setSceneRect(xmin-100, ymin-100, xmax-xmin+100, ymax-ymin+100)
-        
+
         # Define our layout.
         vbox = QVBoxLayout()
 
@@ -174,15 +179,30 @@ class Window(QWidget):
 
         self.setLayout(hbox)
     
+class MyMainWindow(QMainWindow):
+    def __init__(self, central_widget):
+        super().__init__()
+        self.setCentralWidget(central_widget)
+        toolbar = QToolBar("Tools")
+        self.addToolBar(toolbar)
+        save_button = QAction("Save", self)
+        save_button.setStatusTip("This is your button")
+        save_button.triggered.connect(self.save_session)
+        toolbar.addAction(save_button)
     
+    def save_session(self):
+        Session.json_save(SESSION_NAME)
 
-Session.json_load("trial_session")
+Session.json_load(SESSION_NAME)
 
 colors_for_tl = ["white", "red", "blue", "grey", "green"]
 
 app = QApplication(sys.argv)
 
-w = Window(Event.event_dict, Timeline.timeline_dict)
-w.show()
+
+w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
+MW = MyMainWindow(w)
+
+MW.show()
 
 app.exec()
