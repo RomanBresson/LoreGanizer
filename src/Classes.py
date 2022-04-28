@@ -9,7 +9,7 @@ class Event:
             self.__id_nb = Event.free_ids.pop(0) if (len(Event.free_ids)>0) else (max(Event.event_dict,default=-1)+1)
         else:
             self.__id_nb = id_nb
-        self.date = date
+        self.__date = date
         self.height = height
         self.timelines = timelines if not (timelines is None) else []
         self.__class__.event_dict[self.__id_nb] = self
@@ -17,22 +17,29 @@ class Event:
         self.long_description  = "" if long_description is None else long_description
 
     def __gt__(self, other):
-        return(self.date>other.date)
+        return(self.__date>other.__date)
     
     def __ge__(self, other):
-        return(self.date>=other.date)
+        return(self.__date>=other.__date)
     
     def __lt__(self, other):
-        return(self.date<other.date)
+        return(self.__date<other.__date)
 
     def __le__(self, other):
-        return(self.date<=other.date)
+        return(self.__date<=other.__date)
     
     def get_id(self):
         return(self.__id_nb)
     
     def set_id(self, new_id):
         self.__id_nb = new_id
+    
+    def get_date(self):
+        return(self.__date)
+
+    def set_date(self, date):
+        self.__date = date
+        self.update()
 
     def set_short_description(self, desc):
         self.short_description = desc[:50]
@@ -60,7 +67,7 @@ class Timeline:
         Timeline.timeline_dict[self.__id_nb] = self
         if (events is None):
             birth_event = birth if not (birth is None) else Event(date=0, height=0, timelines=[])
-            death_event = death if not (death is None) else Event(date=birth_event.date+1, height=0, timelines=[])
+            death_event = death if not (death is None) else Event(date=birth_event.get_date()+1, height=0, timelines=[])
             birth_event.add_to_timelines(self.__id_nb)
             death_event.add_to_timelines(self.__id_nb)
             self.events = [ev.get_id() for ev in sorted([birth_event, death_event])]
