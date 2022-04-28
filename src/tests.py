@@ -10,7 +10,7 @@ class TestStringMethods(unittest.TestCase):
         Timeline.timeline_dict = {}
         Timeline.free_ids = []
         event1 = Event()
-        self.assertEqual(event1.date,0)
+        self.assertEqual(event1.get_date(),0)
         self.assertEqual(event1.get_id(),0)
         self.assertEqual(event1.timelines,[])
 
@@ -42,7 +42,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(event1.get_id(),0)
         event2 = Event()
         self.assertEqual(event2.get_id(),1)
-        self.assertEqual(event2.date,0)
+        self.assertEqual(event2.get_date(),0)
         self.assertEqual(event2.timelines,[])
 
     def test_comparison_events(self):
@@ -154,7 +154,7 @@ class TestStringMethods(unittest.TestCase):
         delete_event(event1)
         self.assertEqual(len(Event.event_dict), 3)
         self.assertEqual([e.get_id() for e in Event.event_dict.values()],[0,3,4])
-        self.assertEqual([e.date for e in Event.event_dict.values()],[0,-3,8])
+        self.assertEqual([e.get_date() for e in Event.event_dict.values()],[0,-3,8])
 
     def test_timeline_dies_if_fewer_than_2_events(self):
         Event.event_dict = {}
@@ -238,7 +238,7 @@ class TestStringMethods(unittest.TestCase):
         Event.free_ids = []
         json_load("session_test")
         self.assertEqual(list(Event.event_dict.keys()), [0,1,3])
-        self.assertEqual([ev.date for ev in Event.event_dict.values()], [0,5,10])
+        self.assertEqual([ev.get_date() for ev in Event.event_dict.values()], [0,5,10])
     
     def test_load_save_timeline(self):
         Event.event_dict = {}
@@ -280,11 +280,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(timeline1.events, [3,1,0])
         self.assertEqual(timeline2.events, [3,2,0])
         self.assertEqual(timeline3.events, [3,2,1])
-        event0.date = 4
-        self.assertEqual(timeline1.events, [3,1,0])
-        self.assertEqual(timeline2.events, [3,2,0])
-        self.assertEqual(timeline3.events, [3,2,1])
-        event0.update()
+        event0.set_date(4)
         self.assertEqual(timeline1.events, [3,0,1])
         self.assertEqual(timeline2.events, [3,2,0])
         self.assertEqual(timeline3.events, [3,2,1])

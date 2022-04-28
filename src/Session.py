@@ -27,6 +27,8 @@ def json_load(session_name):
     for ev in ev_json.values():
         ev["id_nb"] = ev["_Event__id_nb"]
         del ev["_Event__id_nb"]
+        ev["date"] = ev["_Event__date"]
+        del ev["_Event__date"]
         Event(**ev)
     make_timelines_from_events()
     with open(dirpath+'/timelines.json', 'r') as infile:
