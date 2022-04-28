@@ -25,13 +25,14 @@ DILATION_FACTOR_DATE = 500
 DILATION_FACTOR_HEIGHT = 100
 
 class EventNode(QGraphicsEllipseItem):
-    def __init__(self, event):
+    def __init__(self, event, window):
         super().__init__(0, 0, NODE_DIAMETER, NODE_DIAMETER*(max(1,len(event.timelines))))
         tls = event.timelines
         if len(tls)>0:
             event.height = sum(tls)/len(tls)
         self.setPos(event.get_date()*DILATION_FACTOR_DATE, event.height*DILATION_FACTOR_HEIGHT)
         self.event = event
+        self.setZValue(10)
 
         brush = QBrush(Qt.white)
         self.setBrush(brush)
@@ -40,19 +41,37 @@ class EventNode(QGraphicsEllipseItem):
         pen.setWidth(1)
         self.setPen(pen)
         self.lines = []
+        self.window = window
     
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
             print("Left Button Clicked")
         elif QMouseEvent.button() == Qt.RightButton:
-            
             print("Right Button Clicked")
+
+    def delete_lines(self):
+        for line in self.lines:
+            self.window.scene.removeItem(line)
+        self.lines = []
+
+    def recompute_lines(self):
+        self.lines = []
+        for timeline in [Timeline.timeline_dict[tl_id] for tl_id in self.event.timelines]:
+            for conn in self.window.timeline_connections[timeline.get_id()]:
+                self.window.scene.removeItem(conn)
+            self.window.timeline_connections[timeline.get_id()] = []
+            for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
+                connection = Connection(self.window.events_nodes[e1], self.window.events_nodes[e2], tl_id = timeline.get_id(), color=self.window.colors[timeline.get_id()%len(self.window.colors)])
+                self.window.scene.addItem(connection)
+                self.window.timeline_connections[timeline.get_id()].append(connection)
+                self.lines.append(connection)
 
     def mouseReleaseEvent(self, change):
         for line in self.lines:
             line.updateLine(self)
         new_date = self.scenePos().x()/DILATION_FACTOR_DATE
         self.event.set_date(new_date)
+        self.recompute_lines()
         return super().mouseReleaseEvent(change)
 
 class Connection(QGraphicsLineItem):
@@ -61,6 +80,7 @@ class Connection(QGraphicsLineItem):
         self.start = start
         self.end = end
         self.timeline = tl_id
+        self.setZValue(0)
         start.lines.append(self)
         end.lines.append(self)
         self.compute_shifts()
@@ -110,34 +130,36 @@ class Window(QWidget):
         if timelines_dict is None:
             timelines_dict = {}
 
-        events_nodes = {}
+        self.events_nodes = {}
 
         for event_id, event in events_dict.items():
-            event_node = EventNode(event)
+            event_node = EventNode(event, self)
             
             # Add the items to the scene. Items are stacked in the order they are added.
-            events_nodes[event_id] = event_node
+            self.events_nodes[event_id] = event_node
         
-        colors = [Qt.darkBlue, Qt.darkRed, Qt.darkGreen, Qt.magenta, Qt.blue, Qt.black]
-
+        self.colors = [Qt.darkBlue, Qt.darkRed, Qt.darkGreen, Qt.magenta, Qt.blue, Qt.black]
+        self.timeline_connections = {}
         for timeline_id, timeline in timelines_dict.items():
+            self.timeline_connections[timeline_id] = []
             for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
-                connection = Connection(events_nodes[e1], events_nodes[e2], tl_id = timeline.get_id(), color=colors[timeline.get_id()%len(colors)])
+                connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = timeline.get_id(), color=self.colors[timeline.get_id()%len(self.colors)])
                 self.scene.addItem(connection)
+                self.timeline_connections[timeline_id].append(connection)
         
-        for event_node in events_nodes.values():
+        for event_node in self.events_nodes.values():
             self.scene.addItem(event_node)
 
         # Set all items as moveable and selectable.
         for item in self.scene.items():
             if isinstance(item, EventNode):
                 item.setFlag(QGraphicsItem.ItemIsMovable)
-                item.setFlag(QGraphicsItem.ItemIsSelectable)
+                #item.setFlag(QGraphicsItem.ItemIsSelectable)
         
-        xmin = min([e.scenePos().x() for e in events_nodes.values()])
-        xmax = max([e.scenePos().x() for e in events_nodes.values()])
-        ymin = min([e.scenePos().y() for e in events_nodes.values()])
-        ymax = max([e.scenePos().y() for e in events_nodes.values()])
+        xmin = min([e.scenePos().x() for e in self.events_nodes.values()])
+        xmax = max([e.scenePos().x() for e in self.events_nodes.values()])
+        ymin = min([e.scenePos().y() for e in self.events_nodes.values()])
+        ymax = max([e.scenePos().y() for e in self.events_nodes.values()])
         self.scene.setSceneRect(xmin-100, ymin-100, xmax-xmin+100, ymax-ymin+100)
         
         # Define our layout.
