@@ -154,7 +154,7 @@ class Window(QWidget):
     
     
 
-Session.json_load("example_session")
+Session.json_load("trial_session")
 
 colors_for_tl = ["white", "red", "blue", "grey", "green"]
 

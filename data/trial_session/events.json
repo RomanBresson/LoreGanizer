@@ -1,0 +1,146 @@
+{
+    "0": {
+        "_Event__id_nb": 0,
+        "_Event__date": 0,
+        "height": 0.0,
+        "timelines": [
+            0
+        ],
+        "short_description": "CharA birth",
+        "long_description": "CharA is born"
+    },
+    "1": {
+        "_Event__id_nb": 1,
+        "_Event__date": 2,
+        "height": 0.0,
+        "timelines": [
+            0
+        ],
+        "short_description": "CharA starts school",
+        "long_description": "CharA starts going to school"
+    },
+    "2": {
+        "_Event__id_nb": 2,
+        "_Event__date": 19,
+        "height": 0.0,
+        "timelines": [
+            0
+        ],
+        "short_description": "Meets CharD",
+        "long_description": "CharA meets CharD in her bar"
+    },
+    "3": {
+        "_Event__id_nb": 3,
+        "_Event__date": 19.75,
+        "height": 0.0,
+        "timelines": [
+            0
+        ],
+        "short_description": "Eats with CharD",
+        "long_description": "CharA goes to the restaurant with CharD"
+    },
+    "4": {
+        "_Event__id_nb": 4,
+        "_Event__date": 20,
+        "height": 0.0,
+        "timelines": [
+            0
+        ],
+        "short_description": "CharA sick",
+        "long_description": "CharA gets sick because of the restaurant"
+    },
+    "5": {
+        "_Event__id_nb": 5,
+        "_Event__date": 20.02,
+        "height": 0.0,
+        "timelines": [
+            0
+        ],
+        "short_description": "Goes to the doctor",
+        "long_description": "CharA goes to receive a treetment, gets prescribed some medicine"
+    },
+    "6": {
+        "_Event__id_nb": 6,
+        "_Event__date": 20.2,
+        "height": 0.0,
+        "timelines": [
+            0,
+            1
+        ],
+        "short_description": "CharA Meets CharB",
+        "long_description": "CharA meets CharB for the first time"
+    },
+    "7": {
+        "_Event__id_nb": 7,
+        "_Event__date": 21,
+        "height": 0.0,
+        "timelines": [
+            0
+        ],
+        "short_description": "Returns home",
+        "long_description": "CharA returns to their home alone"
+    },
+    "8": {
+        "_Event__id_nb": 8,
+        "_Event__date": 0,
+        "height": 0.0,
+        "timelines": [
+            1
+        ],
+        "short_description": "Gets a promotion",
+        "long_description": "CharB gets a promotion at work, they are now a regional manager"
+    },
+    "9": {
+        "_Event__id_nb": 9,
+        "_Event__date": 22,
+        "height": 0.0,
+        "timelines": [
+            1
+        ],
+        "short_description": "Becomes CEO",
+        "long_description": "CharB's boss retires, and they get the job because of theur performance"
+    },
+    "10": {
+        "_Event__id_nb": 10,
+        "_Event__date": 17,
+        "height": 0.0,
+        "timelines": [
+            1,
+            2
+        ],
+        "short_description": "CharB Meets CharC",
+        "long_description": "CharB meets CharC for the first time at the football field"
+    },
+    "11": {
+        "_Event__id_nb": 11,
+        "_Event__date": -20,
+        "height": 0.0,
+        "timelines": [
+            2
+        ],
+        "short_description": "CharC birth",
+        "long_description": "CharC is born in a close city, at the top of a tower"
+    },
+    "12": {
+        "_Event__id_nb": 12,
+        "_Event__date": 18,
+        "height": 0.0,
+        "timelines": [
+            2
+        ],
+        "short_description": "Starts working on project",
+        "long_description": "Agrees with CharB and starts working on ways to make the sales better"
+    },
+    "13": {
+        "_Event__id_nb": 13,
+        "_Event__date": 20.5,
+        "height": 0.0,
+        "timelines": [
+            0,
+            1,
+            2
+        ],
+        "short_description": "All meet",
+        "long_description": "CharB makes CharC and CharA meet"
+    }
+}
