@@ -44,6 +44,10 @@ class Event:
         if tl_id not in self.timelines:
             self.timelines.append(tl_id)
             self.timelines.sort()
+    
+    def update(self):
+        for timeline in self.timelines:
+            Timeline.timeline_dict[timeline].update()
 
 class Timeline:
     timeline_dict = {}
@@ -87,6 +91,9 @@ class Timeline:
                     break
             self.events = self.events[:i] + [event_inserted.get_id()] + self.events[i:]
         event_inserted.add_to_timelines(self.__id_nb)
+    
+    def update(self):
+        self.events = [e.get_id() for e in sorted([Event.event_dict[i] for i in self.events])]
 
 def delete_timeline(tl):
     Timeline.free_ids.append(tl.get_id())

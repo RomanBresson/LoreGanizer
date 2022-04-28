@@ -264,6 +264,30 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(Timeline.timeline_dict[0].events, [2,4])
         self.assertEqual(Timeline.timeline_dict[5].events, [5,6])
         self.assertEqual(Timeline.timeline_dict[1].events, [3,0])
+    
+    def test_update_tl(self):
+        Event.event_dict = {}
+        Event.free_ids = []
+        Timeline.timeline_dict = {}
+        Timeline.free_ids = []
+        event0 = Event(date=10)
+        event1 = Event(date=5)
+        event2 = Event(date=3)
+        event3 = Event(date=0)
+        timeline1 = Timeline(events=[0,1,3])
+        timeline2 = Timeline(events=[0,3,2])
+        timeline3 = Timeline(events=[1,3,2])
+        self.assertEqual(timeline1.events, [3,1,0])
+        self.assertEqual(timeline2.events, [3,2,0])
+        self.assertEqual(timeline3.events, [3,2,1])
+        event0.date = 4
+        self.assertEqual(timeline1.events, [3,1,0])
+        self.assertEqual(timeline2.events, [3,2,0])
+        self.assertEqual(timeline3.events, [3,2,1])
+        event0.update()
+        self.assertEqual(timeline1.events, [3,0,1])
+        self.assertEqual(timeline2.events, [3,2,0])
+        self.assertEqual(timeline3.events, [3,2,1])
 
 if __name__ == '__main__':
     unittest.main()
