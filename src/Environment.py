@@ -20,11 +20,10 @@ from PyQt5.QtWidgets import (
 )
 
 NODE_DIAMETER = 10
-LINE_WIDTH = 10
+LINE_WIDTH = 8
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event):
-        print(event.timelines)
         super().__init__(0, 0, NODE_DIAMETER, NODE_DIAMETER*(max(1,len(event.timelines))))
         tls = event.timelines
         if len(tls)>0:
@@ -40,6 +39,13 @@ class EventNode(QGraphicsEllipseItem):
         self.setPen(pen)
         self.lines = []
     
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.LeftButton:
+            print("Left Button Clicked")
+        elif QMouseEvent.button() == Qt.RightButton:
+            
+            print("Right Button Clicked")
+
     def mouseReleaseEvent(self, change):
         for line in self.lines:
             line.updateLine(self)
@@ -90,6 +96,7 @@ class Connection(QGraphicsLineItem):
 class Window(QWidget):
     def __init__(self, events_dict = None, timelines_dict = None):
         super().__init__()
+        self.setStyleSheet("background-color: gray;")
 
         # Defining a scene rect of 400x200, with it's origin at 0,0.
         # If we don't set this on creation, we can set it later with .setSceneRect
@@ -107,7 +114,7 @@ class Window(QWidget):
             # Add the items to the scene. Items are stacked in the order they are added.
             events_nodes[event_id] = event_node
         
-        colors = [Qt.cyan, Qt.red, Qt.yellow, Qt.green, Qt.magenta, Qt.blue, Qt.black]
+        colors = [Qt.darkBlue, Qt.darkRed, Qt.darkGreen, Qt.magenta, Qt.blue, Qt.black]
 
         for timeline_id, timeline in timelines_dict.items():
             for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
@@ -140,8 +147,10 @@ class Window(QWidget):
         hbox.addWidget(view)
 
         self.setLayout(hbox)
+    
+    
 
-Session.json_load("session_test")
+Session.json_load("example_session")
 
 colors_for_tl = ["white", "red", "blue", "grey", "green"]
 
