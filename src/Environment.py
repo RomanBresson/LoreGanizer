@@ -160,11 +160,13 @@ class Window(QWidget):
             if isinstance(item, EventNode):
                 item.setFlag(QGraphicsItem.ItemIsMovable)
                 #item.setFlag(QGraphicsItem.ItemIsSelectable)
-        
-        xmin = min([e.scenePos().x() for e in self.events_nodes.values()])
-        xmax = max([e.scenePos().x() for e in self.events_nodes.values()])
-        ymin = min([e.scenePos().y() for e in self.events_nodes.values()])
-        ymax = max([e.scenePos().y() for e in self.events_nodes.values()])
+
+        xmin, xmax, ymin, ymax = 0., 400, 0., 100
+        if len(self.events_nodes):        
+            xmin = min([e.scenePos().x() for e in self.events_nodes.values()])
+            xmax = max([e.scenePos().x() for e in self.events_nodes.values()])
+            ymin = min([e.scenePos().y() for e in self.events_nodes.values()])
+            ymax = max([e.scenePos().y() for e in self.events_nodes.values()])
         self.scene.setSceneRect(xmin-100, ymin-100, xmax-xmin+100, ymax-ymin+100)
 
         # Define our layout.
@@ -186,21 +188,28 @@ class MyMainWindow(QMainWindow):
         toolbar = QToolBar("Tools")
         self.addToolBar(toolbar)
         save_button = QAction("Save", self)
-        save_button.setStatusTip("This is your button")
         save_button.triggered.connect(self.save_session)
         toolbar.addAction(save_button)
-    
+        save_button = QAction("Load", self)
+        save_button.triggered.connect(self.load_session)
+        toolbar.addAction(save_button)
+
     def save_session(self):
         Session.json_save(SESSION_NAME)
+    
+    def load_session(self):
+        Session.json_load(SESSION_NAME)
+        w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
+        self.setCentralWidget(w)
 
-Session.json_load(SESSION_NAME)
+#Session.json_load(SESSION_NAME)
 
 colors_for_tl = ["white", "red", "blue", "grey", "green"]
 
 app = QApplication(sys.argv)
 
-
 w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
+
 MW = MyMainWindow(w)
 
 MW.show()
