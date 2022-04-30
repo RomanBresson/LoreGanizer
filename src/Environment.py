@@ -1,14 +1,20 @@
 import time
+import sys
+import os
+from matplotlib.style import available
 import networkx as nx
 import matplotlib.pyplot as plt
 import Session
 from Classes import *
-import sys
 
 from PyQt5.QtCore import Qt, QLineF, QPointF
 from PyQt5.QtGui import QBrush, QPainter, QPen
 from PyQt5.QtWidgets import (
     QPushButton,
+    QComboBox,
+    QMessageBox,
+    QListWidget,
+    QDialog,
     QToolBar,
     QApplication,
     QGraphicsEllipseItem,
@@ -27,7 +33,8 @@ NODE_DIAMETER = 10
 LINE_WIDTH = 8
 DILATION_FACTOR_DATE = 500
 DILATION_FACTOR_HEIGHT = 100
-SESSION_NAME = "trial_session"
+SESSION_NAME = ""
+DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data")
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):
@@ -198,9 +205,31 @@ class MyMainWindow(QMainWindow):
         Session.json_save(SESSION_NAME)
     
     def load_session(self):
+        global SESSION_NAME
+        session_loader = SessionLoader(parent=self)
+        session_loader.exec()
         Session.json_load(SESSION_NAME)
         w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
         self.setCentralWidget(w)
+
+class SessionLoader(QDialog):
+    def __init__(self, parent):
+        super().__init__(parent=parent)
+        self.setWindowTitle("Load existing session")
+        #msg.setText("Select session to load")
+        available_sessions = [session.name for session in os.scandir(DATA_PATH)]
+        self.resize(200, 100)
+        self.listwidget = QListWidget(parent=self)
+        self.listwidget.addItems(available_sessions)
+        self.ok_button = QPushButton(self)
+        self.ok_button.setText("Ok")
+        self.ok_button.move(100, 70)
+        self.ok_button.clicked.connect(self.clicked)
+        
+    def clicked(self):
+        global SESSION_NAME
+        SESSION_NAME = self.listwidget.currentItem().text()
+        self.close()
 
 #Session.json_load(SESSION_NAME)
 
