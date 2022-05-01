@@ -108,7 +108,8 @@ class EventNode(QGraphicsEllipseItem):
     
     def recompute_lines(self):
         self.window.recompute_lines(self.event.timelines)
-
+        self.setRect(0.,0.,NODE_DIAMETER, NODE_DIAMETER*(max(1,len(self.event.timelines))))
+        
 class Connection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, color=Qt.black):
         super().__init__()
