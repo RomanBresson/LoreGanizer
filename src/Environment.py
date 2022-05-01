@@ -227,8 +227,15 @@ class SessionLoader(QDialog):
         self.ok_button.clicked.connect(self.clicked)
         
     def clicked(self):
-        global SESSION_NAME
-        SESSION_NAME = self.listwidget.currentItem().text()
+        warning_box = QMessageBox()
+        warning_box.setText("All unsaved progress will be lost. Proceed ?")
+        warning_box.setWindowTitle("Warning")
+        warning_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        ret = warning_box.exec_()
+        if ret==1024:
+            #ok clicked
+            global SESSION_NAME
+            SESSION_NAME = self.listwidget.currentItem().text()
         self.close()
 
 #Session.json_load(SESSION_NAME)
