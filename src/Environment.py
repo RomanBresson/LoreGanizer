@@ -222,12 +222,44 @@ class MyMainWindow(QMainWindow):
         w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
         self.setCentralWidget(w)
 
+class ObjectCreator(QDialog):
+    def __init__(self, labels, parent=None):
+        super().__init__(parent)
+        
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        layout = QFormLayout(self)
+        
+        self.inputs = {}
+        for lab in labels:
+            self.inputs[lab] = QLineEdit(self)
+            layout.addRow(lab, self.inputs[lab])
+        layout.addWidget(buttonBox)
+        
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+    
+    def getInputs(self):
+        return tuple(input.text() for input in self.inputs.values())
+
+class EventCreator(ObjectCreator):
+    def __init__(self, parent=None):
+        super().__init__(labels= ["Date", "Short description"], parent=parent)
+        onlyInt = QIntValidator()
+        self.inputs["Date"].setValidator(onlyInt)
+        self.inputs["Short description"].setMaxLength(Event.SHORT_DESC_MAX_LENGTH)
+    
+    def getInputs(self):
+        try:
+            return (float(self.inputs["Date"].text()), self.inputs["Short description"].text())
+        except:
+            return(None)
+
 class SessionLoader(QDialog):
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.setWindowTitle("Load existing session")
         #msg.setText("Select session to load")
-        available_sessions = [session.name for session in os.scandir(DATA_PATH)]
+        available_sessions = [session.name[:-5] for session in os.scandir(DATA_PATH)]
         self.resize(200, 100)
         self.listwidget = QListWidget(parent=self)
         self.listwidget.addItems(available_sessions)
