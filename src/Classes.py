@@ -101,8 +101,8 @@ class Timeline:
         event_inserted.add_to_timeline(self.__id_nb)
     
     def remove_event(self, event_to_remove):
-        self.events.remove(event_to_remove)
-        Event.event_dict[event_to_remove].timelines.remove(self.__id_nb)
+        self.events.remove(event_to_remove.get_id())
+        Event.event_dict[event_to_remove.get_id()].timelines.remove(self.__id_nb)
     
     def update(self):
         self.events = [e.get_id() for e in sorted([Event.event_dict[i] for i in self.events])]
