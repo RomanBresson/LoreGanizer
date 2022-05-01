@@ -4,6 +4,7 @@ import bisect
 class Event:
     event_dict = {}
     free_ids = []
+    SHORT_DESC_MAX_LENGTH = 50
     def __init__(self, id_nb=None, date=0., height=0., timelines=None, short_description=None, long_description=None):
         if id_nb is None:
             self.__id_nb = Event.free_ids.pop(0) if (len(Event.free_ids)>0) else (max(Event.event_dict,default=-1)+1)
@@ -42,7 +43,7 @@ class Event:
         self.update()
 
     def set_short_description(self, desc):
-        self.short_description = desc[:50]
+        self.short_description = desc[:Event.SHORT_DESC_MAX_LENGTH]
     
     def get_short_description(self):
         return(self.short_description)
