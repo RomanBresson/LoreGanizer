@@ -296,7 +296,7 @@ class SessionLoader(QDialog):
         self.resize(200, 300)
         self.listwidget = QListWidget(parent=self)
         self.listwidget.setWordWrap(True)
-        self.listwidget.setSelectionMode(2)
+        self.listwidget.setSelectionMode(1)
         self.listwidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.listwidget.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.listwidget.addItems(available_sessions)
