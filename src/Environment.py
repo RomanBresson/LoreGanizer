@@ -1,26 +1,20 @@
-import time
 import sys
 import os
 from matplotlib.style import available
-import networkx as nx
-import matplotlib.pyplot as plt
 import Session
 from Classes import *
 
 from PyQt5.QtCore import Qt, QLineF, QPointF
-from PyQt5.QtGui import QBrush, QPainter, QPen, QIntValidator, QDoubleValidator, QStandardItem, QStandardItemModel
+from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator
 from PyQt5.QtWidgets import (
     QPushButton,
-    QComboBox,
     QDialogButtonBox,
     QFormLayout,
     QLineEdit,
     QMessageBox,
     QListWidgetItem,
-    QLabel,
     QListWidget,
     QDialog,
-    QListView,
     QToolBar,
     QApplication,
     QGraphicsEllipseItem,
@@ -33,8 +27,7 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QAction,
-    QMainWindow,
-    QInputDialog
+    QMainWindow
 )
 
 NODE_DIAMETER = 10
