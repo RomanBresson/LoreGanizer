@@ -78,7 +78,7 @@ class Timeline:
             for ev in events:
                 self.insert_event(Event.event_dict[ev])
         if name is None:
-            self.name = ""
+            self.name = str(self.__id_nb)
         else:
             self.name = name
 
