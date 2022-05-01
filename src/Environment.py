@@ -34,7 +34,7 @@ LINE_WIDTH = 8
 DILATION_FACTOR_DATE = 500
 DILATION_FACTOR_HEIGHT = 100
 SESSION_NAME = ""
-DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data")
+DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "saves")
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):

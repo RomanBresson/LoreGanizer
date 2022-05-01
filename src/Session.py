@@ -8,22 +8,21 @@ def json_save(session_name):
         event.timelines.sort()
     events_str = {i:Event.event_dict[i].__dict__ for i in Event.event_dict}
     timelines_str = {i:Timeline.timeline_dict[i].name for i in Timeline.timeline_dict}
-    dirpath = f'data/{session_name}'
-    if not os.path.exists(dirpath):
-        os.makedirs(dirpath)
-    with open(dirpath+'/events.json', 'w') as outfile:
-        json.dump(events_str, outfile, indent=4)
-    with open(dirpath+'/timelines.json', 'w') as outfile:
-        json.dump(timelines_str, outfile, indent=4)
+    complete_str = {"events": events_str, "timelines": timelines_str}
+    filepath = f'saves/{session_name}'
+    with open(filepath, 'w') as outfile:
+        json.dump(complete_str, outfile, indent=4)
 
 def json_load(session_name):
     Event.event_dict = {}
     Event.free_ids = []
     Timeline.timeline_dict = {}
     Timeline.free_ids = []
-    dirpath = f'data/{session_name}'
-    with open(dirpath+'/events.json', 'r') as infile:
-        ev_json = json.load(infile)
+    filepath = f'saves/{session_name}'
+    with open(filepath, 'r') as infile:
+        json_str = json.load(infile)
+        ev_json = json_str["events"]
+        tl_json = json_str["timelines"]
     for ev in ev_json.values():
         ev["id_nb"] = ev["_Event__id_nb"]
         del ev["_Event__id_nb"]
@@ -31,8 +30,6 @@ def json_load(session_name):
         del ev["_Event__date"]
         Event(**ev)
     make_timelines_from_events()
-    with open(dirpath+'/timelines.json', 'r') as infile:
-        tl_json = json.load(infile)
     for tl_id,tl_name in tl_json.items():
         Timeline.timeline_dict[int(tl_id)].name = tl_name
     autocomplete_free_ids_events()
