@@ -26,7 +26,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QAction,
-    QMainWindow
+    QMainWindow,
+    QInputDialog
 )
 
 NODE_DIAMETER = 10
@@ -202,6 +203,9 @@ class MyMainWindow(QMainWindow):
         toolbar.addAction(load_button)
 
     def save_session(self):
+        global SESSION_NAME
+        if SESSION_NAME=="":
+            SESSION_NAME = QInputDialog().getText(self, "New save", "Select a name for the project")[0]
         Session.json_save(SESSION_NAME)
     
     def load_session(self):
