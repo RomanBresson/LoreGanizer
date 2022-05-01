@@ -41,7 +41,7 @@ class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):
         super().__init__(0, 0, NODE_DIAMETER, NODE_DIAMETER*(max(1,len(event.timelines))))
         tls = event.timelines
-        if len(tls)>0:
+        if ((len(tls)>0)):
             event.height = sum(tls)/len(tls)
         self.setPos(event.get_date()*DILATION_FACTOR_DATE, event.height*DILATION_FACTOR_HEIGHT)
         self.event = event
@@ -198,16 +198,22 @@ class MyMainWindow(QMainWindow):
         save_button = QAction("Save", self)
         save_button.triggered.connect(self.save_session)
         toolbar.addAction(save_button)
+        save_as_button = QAction("Save as", self)
+        save_as_button.triggered.connect(self.save_as_session)
+        toolbar.addAction(save_as_button)
         load_button = QAction("Load", self)
         load_button.triggered.connect(self.load_session)
         toolbar.addAction(load_button)
 
-    def save_session(self):
+    def save_session(self, save_as=False):
         global SESSION_NAME
-        if SESSION_NAME=="":
+        if ((SESSION_NAME=="") | save_as):
             SESSION_NAME = QInputDialog().getText(self, "New save", "Select a name for the project")[0]
         Session.json_save(SESSION_NAME)
     
+    def save_as_session(self):
+        self.save_session(save_as=True)
+
     def load_session(self):
         global SESSION_NAME
         session_loader = SessionLoader(parent=self)
