@@ -338,6 +338,7 @@ class NodeInfoBox(SurveyDialog):
 class EventCreator(SurveyDialog):
     def __init__(self, parent=None):
         super().__init__(labels= ["Date", "Height", "Short Description"], parent=parent)
+        self.setWindowTitle("New event")
         onlyDouble = QDoubleValidator()
         self.inputs["Date"].setValidator(onlyDouble)
         self.inputs["Height"].setValidator(onlyDouble)
