@@ -177,7 +177,7 @@ class Window(QWidget):
                 item.setFlag(QGraphicsItem.ItemIsMovable)
                 #item.setFlag(QGraphicsItem.ItemIsSelectable)
         """
-        
+
         xmin, xmax, ymin, ymax = 0., 400, 0., 100
         if len(self.events_nodes):        
             xmin = min([e.scenePos().x() for e in self.events_nodes.values()])
