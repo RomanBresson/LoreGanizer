@@ -9,7 +9,7 @@ def json_save(session_name):
     events_str = {i:Event.event_dict[i].__dict__ for i in Event.event_dict}
     timelines_str = {i:Timeline.timeline_dict[i].name for i in Timeline.timeline_dict}
     complete_str = {"events": events_str, "timelines": timelines_str}
-    filepath = f'saves/{session_name}'
+    filepath = f'saves/{session_name}.json'
     with open(filepath, 'w') as outfile:
         json.dump(complete_str, outfile, indent=4)
 
@@ -18,7 +18,7 @@ def json_load(session_name):
     Event.free_ids = []
     Timeline.timeline_dict = {}
     Timeline.free_ids = []
-    filepath = f'saves/{session_name}'
+    filepath = f'saves/{session_name}.json'
     with open(filepath, 'r') as infile:
         json_str = json.load(infile)
         ev_json = json_str["events"]
