@@ -5,7 +5,7 @@ class Event:
     event_dict = {}
     free_ids = []
     SHORT_DESC_MAX_LENGTH = 50
-    def __init__(self, id_nb=None, date=0., height=0., timelines=None, short_description=None, long_description=None):
+    def __init__(self, id_nb=None, date=0., height=None, timelines=None, short_description=None, long_description=None):
         if id_nb is None:
             self.__id_nb = Event.free_ids.pop(0) if (len(Event.free_ids)>0) else (max(Event.event_dict,default=-1)+1)
         else:
