@@ -1,6 +1,3 @@
-import numpy as np
-import bisect
-
 class Event:
     event_dict = {}
     free_ids = []

@@ -1,7 +1,5 @@
-from sqlite3 import Time
 from Classes import *
 import json
-import os
 
 def json_save(session_name):
     for event in Event.event_dict.values():
