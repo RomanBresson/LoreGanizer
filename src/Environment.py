@@ -8,10 +8,13 @@ import Session
 from Classes import *
 
 from PyQt5.QtCore import Qt, QLineF, QPointF
-from PyQt5.QtGui import QBrush, QPainter, QPen
+from PyQt5.QtGui import QBrush, QPainter, QPen, QIntValidator, QDoubleValidator
 from PyQt5.QtWidgets import (
     QPushButton,
     QComboBox,
+    QDialogButtonBox,
+    QFormLayout,
+    QLineEdit,
     QMessageBox,
     QListWidget,
     QDialog,
@@ -55,6 +58,7 @@ class EventNode(QGraphicsEllipseItem):
         self.setPen(pen)
         self.lines = []
         self.window = window
+        self.setFlag(QGraphicsItem.ItemIsMovable)
     
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
@@ -164,11 +168,13 @@ class Window(QWidget):
             self.scene.addItem(event_node)
 
         # Set all items as moveable and selectable.
+        """
         for item in self.scene.items():
             if isinstance(item, EventNode):
                 item.setFlag(QGraphicsItem.ItemIsMovable)
                 #item.setFlag(QGraphicsItem.ItemIsSelectable)
-
+        """
+        
         xmin, xmax, ymin, ymax = 0., 400, 0., 100
         if len(self.events_nodes):        
             xmin = min([e.scenePos().x() for e in self.events_nodes.values()])
@@ -213,8 +219,7 @@ class MyMainWindow(QMainWindow):
         new_obj.exec()
         fields = new_obj.getInputs()
         if fields is not None:
-            new_event = Event(date=fields[0], short_description=fields[1])
-            new_event.height = 3
+            new_event = Event(date=fields[0], height=fields[1], short_description=fields[2])
             new_node = EventNode(new_event, self)
             self.centralWidget().scene.addItem(new_node)
             new_node.show()
@@ -267,14 +272,15 @@ class SurveyDialog(QDialog):
 
 class EventCreator(SurveyDialog):
     def __init__(self, parent=None):
-        super().__init__(labels= ["Date", "Short description"], parent=parent)
-        onlyInt = QIntValidator()
-        self.inputs["Date"].setValidator(onlyInt)
+        super().__init__(labels= ["Date", "Height", "Short description"], parent=parent)
+        onlyDouble = QDoubleValidator()
+        self.inputs["Date"].setValidator(onlyDouble)
+        self.inputs["Height"].setValidator(onlyDouble)
         self.inputs["Short description"].setMaxLength(Event.SHORT_DESC_MAX_LENGTH)
     
     def getInputs(self):
         try:
-            return (float(self.inputs["Date"].text()), self.inputs["Short description"].text())
+            return (float(self.inputs["Date"].text()), float(self.inputs["Height"].text()), self.inputs["Short description"].text())
         except:
             return(None)
 
