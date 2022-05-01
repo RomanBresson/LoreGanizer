@@ -40,22 +40,25 @@ DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "saves")
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):
         super().__init__(0, 0, NODE_DIAMETER, NODE_DIAMETER*(max(1,len(event.timelines))))
-        tls = event.timelines
-        if ((len(tls)>0)):
-            event.height = sum(tls)/len(tls)
-        self.setPos(event.get_date()*DILATION_FACTOR_DATE, event.height*DILATION_FACTOR_HEIGHT)
         self.event = event
+        tls = event.timelines
+        if event.height is None:
+            if ((len(tls)>0)):
+                self.event.height = sum(tls)/len(tls)
         self.setZValue(10)
-
         brush = QBrush(Qt.white)
         self.setBrush(brush)
-
         pen = QPen(Qt.black)
         pen.setWidth(1)
         self.setPen(pen)
         self.lines = []
         self.window = window
         self.setFlag(QGraphicsItem.ItemIsMovable)
+        self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
+    
+    def update_from_event(self):
+        self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
+        self.recompute_lines()
     
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
@@ -82,27 +85,12 @@ class EventNode(QGraphicsEllipseItem):
             for tl_id in new_tl:
                 if tl_id not in old_tl:
                     Timeline.timeline_dict[tl_id].insert_event(self.event)
+        self.update_from_event()
 
     def delete_lines(self):
         for line in self.lines:
             self.window.scene.removeItem(line)
         self.lines = []
-
-    def recompute_lines(self, additional_timelines=None):
-        if additional_timelines is None:
-            additional_timelines = set()
-        self.lines = []
-        lines_to_recompute = [Timeline.timeline_dict[tl_id] for tl_id in self.event.timelines]
-        lines_to_recompute += [tl for tl in additional_timelines]
-        for timeline in lines_to_recompute:
-            for conn in self.window.timeline_connections[timeline.get_id()]:
-                self.window.scene.removeItem(conn)
-            self.window.timeline_connections[timeline.get_id()] = []
-            for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
-                connection = Connection(self.window.events_nodes[e1], self.window.events_nodes[e2], tl_id = timeline.get_id(), color=self.window.colors[timeline.get_id()%len(self.window.colors)])
-                self.window.scene.addItem(connection)
-                self.window.timeline_connections[timeline.get_id()].append(connection)
-                self.lines.append(connection)
 
     def mouseReleaseEvent(self, change):
         additional_timelines = set()
@@ -110,11 +98,16 @@ class EventNode(QGraphicsEllipseItem):
             if line.timeline in self.event.timelines:
                 line.updateLine(self)
             else:
-                additional_timelines.append(line.timeline)
+                additional_timelines.add(line.timeline)
         new_date = self.scenePos().x()/DILATION_FACTOR_DATE
         self.event.set_date(new_date)
-        self.recompute_lines(additional_timelines)
+        new_height = self.scenePos().y()/DILATION_FACTOR_HEIGHT
+        self.event.height = new_height
+        self.recompute_lines()
         return super().mouseReleaseEvent(change)
+    
+    def recompute_lines(self):
+        self.window.recompute_lines(self.event.timelines)
 
 class Connection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, color=Qt.black):
@@ -163,7 +156,7 @@ class Window(QWidget):
     def __init__(self, events_dict = None, timelines_dict = None, parent=None):
         super().__init__(parent=parent)
         self.setStyleSheet("background-color: gray;")
-
+        self.timeline_connections = {}
         # Defining a scene rect of 400x200, with it's origin at 0,0.
         # If we don't set this on creation, we can set it later with .setSceneRect
         self.scene = QGraphicsScene(0, 0, 400, 100)
@@ -181,7 +174,6 @@ class Window(QWidget):
             self.events_nodes[event_id] = event_node
         
         self.colors = [Qt.darkBlue, Qt.darkRed, Qt.darkGreen, Qt.magenta, Qt.blue, Qt.black]
-        self.timeline_connections = {}
         for timeline_id, timeline in timelines_dict.items():
             self.timeline_connections[timeline_id] = []
             for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
@@ -220,6 +212,20 @@ class Window(QWidget):
 
         self.setLayout(hbox)
     
+    def recompute_lines(self, list_of_timelines=None):
+        if list_of_timelines is None:
+            list_of_timelines = []
+        for tl_id,timeline in Timeline.timeline_dict.items():
+            for conn in self.timeline_connections[tl_id]:
+                self.scene.removeItem(conn)
+            self.timeline_connections[tl_id] = []
+            for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
+                connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=self.colors[timeline.get_id()%len(self.colors)])
+                self.scene.addItem(connection)
+                self.timeline_connections[tl_id].append(connection)
+                self.events_nodes[e1].lines.append(connection)
+                self.events_nodes[e2].lines.append(connection)
+
 class MyMainWindow(QMainWindow):
     def __init__(self, central_widget):
         super().__init__()
@@ -325,7 +331,6 @@ class NodeInfoBox(SurveyDialog):
         dict_ret["Date"] = float(self.inputs["Date"].text())
         dict_ret["Height"] = float(self.inputs["Height"].text())
         dict_ret["Timelines"] = [s.text() for s in self.inputs["Timelines"].selectedItems()]
-        print(dict_ret)
         return(dict_ret)
 
 class EventCreator(SurveyDialog):
