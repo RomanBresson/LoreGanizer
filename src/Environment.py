@@ -8,7 +8,7 @@ import Session
 from Classes import *
 
 from PyQt5.QtCore import Qt, QLineF, QPointF
-from PyQt5.QtGui import QBrush, QPainter, QPen, QIntValidator, QDoubleValidator
+from PyQt5.QtGui import QBrush, QPainter, QPen, QIntValidator, QDoubleValidator, QStandardItem, QStandardItemModel
 from PyQt5.QtWidgets import (
     QPushButton,
     QComboBox,
@@ -16,8 +16,10 @@ from PyQt5.QtWidgets import (
     QFormLayout,
     QLineEdit,
     QMessageBox,
+    QLabel,
     QListWidget,
     QDialog,
+    QListView,
     QToolBar,
     QApplication,
     QGraphicsEllipseItem,
@@ -26,6 +28,7 @@ from PyQt5.QtWidgets import (
     QGraphicsView,
     QGraphicsLineItem,
     QHBoxLayout,
+    QAbstractItemView,
     QVBoxLayout,
     QWidget,
     QAction,
@@ -229,7 +232,7 @@ class MyMainWindow(QMainWindow):
         new_session_name = SESSION_NAME
         if ((SESSION_NAME=="") | save_as):
             new_session_name = ""
-            save_as_window = SurveyDialog(labels=["Project name"])
+            save_as_window = SurveyDialog(labels=["Project name"], add_bottom_button=True)
             button_clicked = 0
             while (len(new_session_name)<1):
                 button_clicked = save_as_window.exec()
@@ -290,14 +293,23 @@ class SessionLoader(QDialog):
         self.setWindowTitle("Load existing session")
         #msg.setText("Select session to load")
         available_sessions = [session.name[:-5] for session in os.scandir(DATA_PATH)]
-        self.resize(200, 100)
+        self.resize(200, 300)
         self.listwidget = QListWidget(parent=self)
+        self.listwidget.setWordWrap(True)
+        self.listwidget.setSelectionMode(2)
+        self.listwidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.listwidget.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
         self.listwidget.addItems(available_sessions)
+        self.listwidget.resize(200, 250)
+
         self.ok_button = QPushButton(self)
         self.ok_button.setText("Ok")
-        self.ok_button.move(100, 70)
         self.ok_button.clicked.connect(self.clicked)
-        
+        layout = QVBoxLayout(self)
+        layout.addStretch()
+        layout.addWidget(self.ok_button, alignment=(Qt.AlignRight | Qt.AlignBottom))
+        #self.verticalLayout.addWidget(self.ok_button, alignment=Qt.AlignBottom)
+
     def clicked(self):
         warning_box = QMessageBox()
         warning_box.setText("All unsaved progress will be lost. Proceed ?")
