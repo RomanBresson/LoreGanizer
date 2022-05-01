@@ -204,13 +204,37 @@ class MyMainWindow(QMainWindow):
         load_button = QAction("Load", self)
         load_button.triggered.connect(self.load_session)
         toolbar.addAction(load_button)
+        new_event = QAction("E+", self)
+        new_event.triggered.connect(self.create_event)
+        toolbar.addAction(new_event)
 
+    def create_event(self):
+        new_obj = EventCreator(self)
+        new_obj.exec()
+        fields = new_obj.getInputs()
+        if fields is not None:
+            new_event = Event(date=fields[0], short_description=fields[1])
+            new_event.height = 3
+            new_node = EventNode(new_event, self)
+            self.centralWidget().scene.addItem(new_node)
+            new_node.show()
+        
     def save_session(self, save_as=False):
         global SESSION_NAME
+        new_session_name = SESSION_NAME
         if ((SESSION_NAME=="") | save_as):
-            SESSION_NAME = QInputDialog().getText(self, "New save", "Select a name for the project")[0]
+            new_session_name = ""
+            save_as_window = SurveyDialog(labels=["Project name"])
+            button_clicked = 0
+            while (len(new_session_name)<1):
+                button_clicked = save_as_window.exec()
+                if button_clicked:
+                    new_session_name = save_as_window.getInputs()[0]
+                else:
+                    return
+        SESSION_NAME = new_session_name
         Session.json_save(SESSION_NAME)
-    
+
     def save_as_session(self):
         self.save_session(save_as=True)
 
@@ -222,7 +246,7 @@ class MyMainWindow(QMainWindow):
         w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
         self.setCentralWidget(w)
 
-class ObjectCreator(QDialog):
+class SurveyDialog(QDialog):
     def __init__(self, labels, parent=None):
         super().__init__(parent)
         
@@ -241,7 +265,7 @@ class ObjectCreator(QDialog):
     def getInputs(self):
         return tuple(input.text() for input in self.inputs.values())
 
-class EventCreator(ObjectCreator):
+class EventCreator(SurveyDialog):
     def __init__(self, parent=None):
         super().__init__(labels= ["Date", "Short description"], parent=parent)
         onlyInt = QIntValidator()
