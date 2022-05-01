@@ -197,9 +197,9 @@ class MyMainWindow(QMainWindow):
         save_button = QAction("Save", self)
         save_button.triggered.connect(self.save_session)
         toolbar.addAction(save_button)
-        save_button = QAction("Load", self)
-        save_button.triggered.connect(self.load_session)
-        toolbar.addAction(save_button)
+        load_button = QAction("Load", self)
+        load_button.triggered.connect(self.load_session)
+        toolbar.addAction(load_button)
 
     def save_session(self):
         Session.json_save(SESSION_NAME)
