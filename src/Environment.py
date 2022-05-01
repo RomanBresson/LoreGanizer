@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import (
     QFormLayout,
     QLineEdit,
     QMessageBox,
+    QListWidgetItem,
     QLabel,
     QListWidget,
     QDialog,
@@ -65,18 +66,42 @@ class EventNode(QGraphicsEllipseItem):
     
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
-            print("Left Button Clicked")
+            pass
         elif QMouseEvent.button() == Qt.RightButton:
-            print("Right Button Clicked")
+            edit_event_box = NodeInfoBox(self.event, self.parentWidget())
+            edit_event_box.exec()
+        
+    def mouseDoubleClickEvent(self, QMouseEvent):
+        edit_event_box = NodeInfoBox(self.event, self.parentWidget())
+        which_button = edit_event_box.exec()
+        new_values = edit_event_box.getInputs()
+        if which_button:
+            self.event.short_description = new_values["Short Description"]
+            self.event.long_description = new_values["Long Description"]
+            self.event.set_date(new_values["Date"])
+            self.event.height = new_values["Height"]
+            tl_name_to_id = {tl.name:tl.get_id() for tl in Timeline.timeline_dict.values()}
+            old_tl = self.event.timelines
+            new_tl = [tl_name_to_id[name_tl] for name_tl in new_values["Timelines"]]
+            for tl_id in old_tl:
+                if tl_id not in new_tl:
+                    Timeline.timeline_dict[tl_id].remove_event(self.event)
+            for tl_id in new_tl:
+                if tl_id not in old_tl:
+                    Timeline.timeline_dict[tl_id].insert_event(self.event)
 
     def delete_lines(self):
         for line in self.lines:
             self.window.scene.removeItem(line)
         self.lines = []
 
-    def recompute_lines(self):
+    def recompute_lines(self, additional_timelines=None):
+        if additional_timelines is None:
+            additional_timelines = set()
         self.lines = []
-        for timeline in [Timeline.timeline_dict[tl_id] for tl_id in self.event.timelines]:
+        lines_to_recompute = [Timeline.timeline_dict[tl_id] for tl_id in self.event.timelines]
+        lines_to_recompute += [tl for tl in additional_timelines]
+        for timeline in lines_to_recompute:
             for conn in self.window.timeline_connections[timeline.get_id()]:
                 self.window.scene.removeItem(conn)
             self.window.timeline_connections[timeline.get_id()] = []
@@ -87,11 +112,15 @@ class EventNode(QGraphicsEllipseItem):
                 self.lines.append(connection)
 
     def mouseReleaseEvent(self, change):
+        additional_timelines = set()
         for line in self.lines:
-            line.updateLine(self)
+            if line.timeline in self.event.timelines:
+                line.updateLine(self)
+            else:
+                additional_timelines.append(line.timeline)
         new_date = self.scenePos().x()/DILATION_FACTOR_DATE
         self.event.set_date(new_date)
-        self.recompute_lines()
+        self.recompute_lines(additional_timelines)
         return super().mouseReleaseEvent(change)
 
 class Connection(QGraphicsLineItem):
@@ -223,7 +252,7 @@ class MyMainWindow(QMainWindow):
         fields = new_obj.getInputs()
         if fields is not None:
             new_event = Event(date=fields[0], height=fields[1], short_description=fields[2])
-            new_node = EventNode(new_event, self)
+            new_node = EventNode(new_event, self.centralWidget())
             self.centralWidget().scene.addItem(new_node)
             new_node.show()
         
@@ -255,37 +284,71 @@ class MyMainWindow(QMainWindow):
         self.setCentralWidget(w)
 
 class SurveyDialog(QDialog):
-    def __init__(self, labels, parent=None):
+    def __init__(self, labels, parent=None, add_bottom_button=False):
         super().__init__(parent)
         
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        layout = QFormLayout(self)
+        self.layout = QFormLayout(self)
         
         self.inputs = {}
         for lab in labels:
             self.inputs[lab] = QLineEdit(self)
-            layout.addRow(lab, self.inputs[lab])
-        layout.addWidget(buttonBox)
-        
+            self.layout.addRow(lab, self.inputs[lab])
+        self.buttonBox = buttonBox
         buttonBox.accepted.connect(self.accept)
         buttonBox.rejected.connect(self.reject)
-    
+        if add_bottom_button:
+            self.layout.addWidget(buttonBox)
+                
     def getInputs(self):
         return tuple(input.text() for input in self.inputs.values())
 
+class NodeInfoBox(SurveyDialog):
+    def __init__(self, event, parent=None):
+        items_list = ["Short Description", "Date", "Height", "Long Description"]
+        super().__init__(labels=items_list, parent=parent)
+        self.inputs["Short Description"].setText(event.short_description)
+        self.inputs["Date"].setText(str(event.get_date()))
+        self.inputs["Height"].setText(str(event.height))
+        self.inputs["Long Description"].setText(str(event.height))
+        self.inputs["Timelines"] = QListWidget(self)
+        self.inputs["Timelines"].setSelectionMode(2)
+        self.inputs["Timelines"].setWordWrap(True)
+        self.inputs["Timelines"].setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.inputs["Timelines"].setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        for tl_id, tl in Timeline.timeline_dict.items():
+            next_item = QListWidgetItem(tl.name, parent = self.inputs["Timelines"])
+            next_item.setText(tl.name)
+            if tl_id in event.timelines:
+                next_item.setSelected(True)
+            self.inputs["Timelines"].addItem(next_item)
+        self.layout.addRow(self.inputs["Timelines"])
+        self.layout.addWidget(self.buttonBox)
+    
+    def getInputs(self):
+        dict_ret = {}
+        dict_ret["Short Description"] = self.inputs["Short Description"].text()
+        dict_ret["Long Description"] = self.inputs["Long Description"].text()
+        dict_ret["Date"] = float(self.inputs["Date"].text())
+        dict_ret["Height"] = float(self.inputs["Height"].text())
+        dict_ret["Timelines"] = [s.text() for s in self.inputs["Timelines"].selectedItems()]
+        print(dict_ret)
+        return(dict_ret)
+
 class EventCreator(SurveyDialog):
     def __init__(self, parent=None):
-        super().__init__(labels= ["Date", "Height", "Short description"], parent=parent)
+        super().__init__(labels= ["Date", "Height", "Short Description"], parent=parent)
         onlyDouble = QDoubleValidator()
         self.inputs["Date"].setValidator(onlyDouble)
         self.inputs["Height"].setValidator(onlyDouble)
-        self.inputs["Short description"].setMaxLength(Event.SHORT_DESC_MAX_LENGTH)
+        self.inputs["Short Description"].setMaxLength(Event.SHORT_DESC_MAX_LENGTH)
+        self.layout.addWidget(self.buttonBox)
     
     def getInputs(self):
         try:
-            return (float(self.inputs["Date"].text()), float(self.inputs["Height"].text()), self.inputs["Short description"].text())
+            return (float(self.inputs["Date"].text()), float(self.inputs["Height"].text()), self.inputs["Short Description"].text())
         except:
-            return(None)
+            return((0., 0., ""))
 
 class SessionLoader(QDialog):
     def __init__(self, parent):
