@@ -307,10 +307,11 @@ class NodeInfoBox(SurveyDialog):
     def __init__(self, event, parent=None):
         items_list = ["Short Description", "Date", "Height", "Long Description"]
         super().__init__(labels=items_list, parent=parent)
+        self.setWindowTitle("Event editor")
         self.inputs["Short Description"].setText(event.short_description)
         self.inputs["Date"].setText(str(event.get_date()))
         self.inputs["Height"].setText(str(event.height))
-        self.inputs["Long Description"].setText(str(event.height))
+        self.inputs["Long Description"].setText(event.long_description)
         self.inputs["Timelines"] = QListWidget(self)
         self.inputs["Timelines"].setSelectionMode(2)
         self.inputs["Timelines"].setWordWrap(True)
