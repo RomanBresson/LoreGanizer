@@ -64,8 +64,7 @@ class EventNode(QGraphicsEllipseItem):
         if QMouseEvent.button() == Qt.LeftButton:
             pass
         elif QMouseEvent.button() == Qt.RightButton:
-            edit_event_box = NodeInfoBox(self.event, self.parentWidget())
-            edit_event_box.exec()
+            pass
         
     def mouseDoubleClickEvent(self, QMouseEvent):
         edit_event_box = NodeInfoBox(self.event, self.parentWidget())
@@ -77,8 +76,8 @@ class EventNode(QGraphicsEllipseItem):
             self.event.set_date(new_values["Date"])
             self.event.height = new_values["Height"]
             tl_name_to_id = {tl.name:tl.get_id() for tl in Timeline.timeline_dict.values()}
-            old_tl = self.event.timelines
-            new_tl = [tl_name_to_id[name_tl] for name_tl in new_values["Timelines"]]
+            old_tl = [tl_id for tl_id in self.event.timelines]
+            new_tl = [tl_name_to_id[nv] for nv in new_values["Timelines"]]
             for tl_id in old_tl:
                 if tl_id not in new_tl:
                     Timeline.timeline_dict[tl_id].remove_event(self.event)
