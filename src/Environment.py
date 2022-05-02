@@ -1,6 +1,5 @@
 import sys
 import os
-from matplotlib.style import available
 import Session
 from Classes import *
 
@@ -16,6 +15,7 @@ from PyQt5.QtWidgets import (
     QListWidget,
     QDialog,
     QToolBar,
+    QSizePolicy,
     QApplication,
     QGraphicsEllipseItem,
     QGraphicsItem,
@@ -27,7 +27,8 @@ from PyQt5.QtWidgets import (
     QVBoxLayout,
     QWidget,
     QAction,
-    QMainWindow
+    QMainWindow,
+    QPlainTextEdit
 )
 
 NODE_DIAMETER = 10
@@ -304,13 +305,17 @@ class SurveyDialog(QDialog):
 
 class NodeInfoBox(SurveyDialog):
     def __init__(self, event, parent=None):
-        items_list = ["Short Description", "Date", "Height", "Long Description"]
+        self.event = event
+        items_list = ["Short Description", "Date", "Height"]
         super().__init__(labels=items_list, parent=parent)
         self.setWindowTitle("Event editor")
         self.inputs["Short Description"].setText(event.short_description)
         self.inputs["Date"].setText(str(event.get_date()))
         self.inputs["Height"].setText(str(event.height))
-        self.inputs["Long Description"].setText(event.long_description)
+        self.inputs["Long Description"] = QPushButton(self)
+        self.layout.addRow("Long Description", self.inputs["Long Description"])
+        self.inputs["Long Description"].setText("Click to edit")
+        self.inputs["Long Description"].clicked.connect(self.edit_long_description)
         self.inputs["Timelines"] = QListWidget(self)
         self.inputs["Timelines"].setSelectionMode(2)
         self.inputs["Timelines"].setWordWrap(True)
@@ -333,6 +338,22 @@ class NodeInfoBox(SurveyDialog):
         dict_ret["Height"] = float(self.inputs["Height"].text())
         dict_ret["Timelines"] = [s.text() for s in self.inputs["Timelines"].selectedItems()]
         return(dict_ret)
+    
+    def edit_long_description(self):
+        long_desc_editor = QDialog(parent=self.parent())
+        textBox = QPlainTextEdit(long_desc_editor)
+        textBox.setPlainText(self.event.long_description)
+        long_desc_editor.resize(500, 500)
+        textBox.resize(490, 490)
+        textBox.move(5, 5)
+        textBox.verticalScrollBar()
+        long_desc_editor.layout = QVBoxLayout()
+        long_desc_editor.layout.addWidget(textBox)
+        #buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, parent=long_desc_editor)
+        #buttonBox.accepted.connect(self.accept)
+        #buttonBox.rejected.connect(self.reject)
+        #long_desc_editor.layout.addWidget(buttonBox, alignment=(Qt.AlignRight | Qt.AlignBottom))
+        long_desc_editor.exec()
 
 class EventCreator(SurveyDialog):
     def __init__(self, parent=None):
