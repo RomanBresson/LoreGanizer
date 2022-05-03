@@ -4,7 +4,7 @@ import Session
 from Classes import *
 
 from PyQt5.QtCore import Qt, QLineF, QPointF
-from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator
+from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QTransform
 from PyQt5.QtWidgets import (
     QPushButton,
     QDialogButtonBox,
@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
     QSizePolicy,
     QApplication,
     QGraphicsEllipseItem,
+    QMenu,
     QGraphicsItem,
     QGraphicsScene,
     QGraphicsView,
@@ -61,6 +62,11 @@ class EventNode(QGraphicsEllipseItem):
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
         self.recompute_lines()
     
+    def update_event_from_self(self):
+        self.event.set_date(self.x()/DILATION_FACTOR_DATE) 
+        self.event.height = self.y()/DILATION_FACTOR_HEIGHT
+        self.recompute_lines()
+    
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.LeftButton:
             pass
@@ -99,16 +105,31 @@ class EventNode(QGraphicsEllipseItem):
                 line.updateLine(self)
             else:
                 additional_timelines.add(line.timeline)
-        new_date = self.scenePos().x()/DILATION_FACTOR_DATE
-        self.event.set_date(new_date)
-        new_height = self.scenePos().y()/DILATION_FACTOR_HEIGHT
-        self.event.height = new_height
+        self.update_event_from_self()
         self.recompute_lines()
         return super().mouseReleaseEvent(change)
     
     def recompute_lines(self):
         self.window.recompute_lines(self.event.timelines)
         self.setRect(0.,0.,NODE_DIAMETER, NODE_DIAMETER*(max(1,len(self.event.timelines))))
+    
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.RightButton:
+            self.contextMenuEvent(QMouseEvent)
+
+    def contextMenuEvent(self, mouseEvent):
+        contextMenu = QMenu(self.window)
+        self.window.layout().addWidget(contextMenu)
+        EditEv = contextMenu.addAction("Edit")
+        DelEv = contextMenu.addAction("Delete")
+        print((mouseEvent.scenePos()))
+        action = contextMenu.exec_()
+        
+        if action==EditEv:
+            self.mouseDoubleClickEvent(mouseEvent)
+        elif action==DelEv:
+            delete_event(self.event)
+            self.window.scene.removeItem(self)
         
 class Connection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, color=Qt.black):
@@ -212,6 +233,21 @@ class Window(QWidget):
         hbox.addWidget(view)
 
         self.setLayout(hbox)
+    
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.RightButton:
+            self.contextMenuEvent(QMouseEvent)
+
+    def contextMenuEvent(self, mouseEvent):
+        contextMenu = QMenu(self)
+        newEv = contextMenu.addAction("New event")
+        action = contextMenu.exec_(self.mapToGlobal(mouseEvent.pos()))
+        if action==newEv:
+            new_event = Event(date=0., height=0)
+            node = EventNode(new_event, self)
+            node.setPos(node.mapToScene(mouseEvent.pos()))
+            node.update_event_from_self()
+            self.scene.addItem(node)
     
     def recompute_lines(self, list_of_timelines=None):
         if list_of_timelines is None:
