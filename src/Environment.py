@@ -256,12 +256,13 @@ class Window(QWidget):
             for conn in self.timeline_connections[tl_id]:
                 self.scene.removeItem(conn)
             self.timeline_connections[tl_id] = []
-            for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
-                connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=self.colors[timeline.get_id()%len(self.colors)])
-                self.scene.addItem(connection)
-                self.timeline_connections[tl_id].append(connection)
-                self.events_nodes[e1].lines.append(connection)
-                self.events_nodes[e2].lines.append(connection)
+            if (len(timeline.events)>1):
+                for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
+                    connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=self.colors[timeline.get_id()%len(self.colors)])
+                    self.scene.addItem(connection)
+                    self.timeline_connections[tl_id].append(connection)
+                    self.events_nodes[e1].lines.append(connection)
+                    self.events_nodes[e2].lines.append(connection)
 
 class MyMainWindow(QMainWindow):
     def __init__(self, central_widget):
@@ -281,6 +282,9 @@ class MyMainWindow(QMainWindow):
         new_event = QAction("E+", self)
         new_event.triggered.connect(self.create_event)
         toolbar.addAction(new_event)
+        new_tl = QAction("T+", self)
+        new_tl.triggered.connect(self.create_timeline)
+        toolbar.addAction(new_tl)
 
     def create_event(self):
         new_obj = EventCreator(self)
@@ -290,8 +294,19 @@ class MyMainWindow(QMainWindow):
             new_event = Event(date=fields[0], height=fields[1], short_description=fields[2])
             new_node = EventNode(new_event, self.centralWidget())
             self.centralWidget().scene.addItem(new_node)
+            self.centralWidget().events_nodes[new_event.get_id()] = new_node
             new_node.show()
-        
+    
+    def create_timeline(self):
+        editor = SurveyDialog(["Name"], parent=self, add_bottom_button=True)
+        editor.exec()
+        name = editor.getInputs()[0]
+        if name is not None:
+            new_tl = Timeline(name=name)
+            if name=="":
+                new_tl.name = f'Timeline {new_tl.get_id()}'
+            self.centralWidget().timeline_connections[new_tl.get_id()] = []
+
     def save_session(self, save_as=False):
         global SESSION_NAME
         new_session_name = SESSION_NAME
