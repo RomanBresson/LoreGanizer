@@ -3,8 +3,8 @@ import os
 import Session
 from Classes import *
 
-from PyQt5.QtCore import Qt, QLineF, QPointF
-from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QTransform
+from PyQt5.QtCore import Qt, QLineF, QPointF, QPoint
+from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QTransform, QCursor
 from PyQt5.QtWidgets import (
     QPushButton,
     QDialogButtonBox,
@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import (
     QGraphicsItem,
     QGraphicsScene,
     QGraphicsView,
+    QGraphicsTextItem,
     QGraphicsLineItem,
     QHBoxLayout,
     QAbstractItemView,
@@ -57,6 +58,11 @@ class EventNode(QGraphicsEllipseItem):
         self.window = window
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
+        self.nameLabel = QGraphicsTextItem(self)
+        self.nameLabel.setPlainText(self.event.short_description)
+        self.nameLabel.moveBy(-5, -10)
+        self.nameLabel.setRotation(-45)
+        self.nameLabel.setScale(1.2)
     
     def update_from_event(self):
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
@@ -130,7 +136,7 @@ class EventNode(QGraphicsEllipseItem):
         elif action==DelEv:
             delete_event(self.event)
             self.window.scene.removeItem(self)
-        
+
 class Connection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, color=Qt.black):
         super().__init__()
@@ -270,6 +276,9 @@ class MyMainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         toolbar = QToolBar("Tools")
         self.addToolBar(toolbar)
+        new_button = QAction("New", self)
+        new_button.triggered.connect(self.new_session)
+        toolbar.addAction(new_button)
         save_button = QAction("Save", self)
         save_button.triggered.connect(self.save_session)
         toolbar.addAction(save_button)
@@ -285,6 +294,20 @@ class MyMainWindow(QMainWindow):
         new_tl = QAction("T+", self)
         new_tl.triggered.connect(self.create_timeline)
         toolbar.addAction(new_tl)
+
+    def new_session(self):
+        global SESSION_NAME
+        warning_box = QMessageBox()
+        warning_box.setText("All unsaved progress will be lost. Proceed ?")
+        warning_box.setWindowTitle("Warning")
+        warning_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        ret = warning_box.exec_()
+        if ret==1024:
+            #ok clicked
+            SESSION_NAME = ""
+            Session.json_load(SESSION_NAME)
+            w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
+            self.setCentralWidget(w)
 
     def create_event(self):
         new_obj = EventCreator(self)
