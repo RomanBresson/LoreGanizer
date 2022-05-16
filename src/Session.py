@@ -16,22 +16,23 @@ def json_load(session_name):
     Event.free_ids = []
     Timeline.timeline_dict = {}
     Timeline.free_ids = []
-    filepath = f'saves/{session_name}.json'
-    with open(filepath, 'r') as infile:
-        json_str = json.load(infile)
-        ev_json = json_str["events"]
-        tl_json = json_str["timelines"]
-    for ev in ev_json.values():
-        ev["id_nb"] = ev["_Event__id_nb"]
-        del ev["_Event__id_nb"]
-        ev["date"] = ev["_Event__date"]
-        del ev["_Event__date"]
-        Event(**ev)
-    make_timelines_from_events()
-    for tl_id,tl_name in tl_json.items():
-        Timeline.timeline_dict[int(tl_id)].name = tl_name
-    autocomplete_free_ids_events()
-    autocomplete_free_ids_timelines()
+    if session_name:
+        filepath = f'saves/{session_name}.json'
+        with open(filepath, 'r') as infile:
+            json_str = json.load(infile)
+            ev_json = json_str["events"]
+            tl_json = json_str["timelines"]
+        for ev in ev_json.values():
+            ev["id_nb"] = ev["_Event__id_nb"]
+            del ev["_Event__id_nb"]
+            ev["date"] = ev["_Event__date"]
+            del ev["_Event__date"]
+            Event(**ev)
+        make_timelines_from_events()
+        for tl_id,tl_name in tl_json.items():
+            Timeline.timeline_dict[int(tl_id)].name = tl_name
+        autocomplete_free_ids_events()
+        autocomplete_free_ids_timelines()
 
 def autocomplete_free_ids_events():
     if len(Event.event_dict)==0:

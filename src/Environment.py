@@ -440,10 +440,10 @@ class EventCreator(SurveyDialog):
         self.layout.addWidget(self.buttonBox)
     
     def getInputs(self):
-        try:
-            return (float(self.inputs["Date"].text()), float(self.inputs["Height"].text()), self.inputs["Short Description"].text())
-        except:
-            return((0., 0., ""))
+        date = float(self.inputs["Date"].text()) if self.inputs["Date"].text() else 0.
+        height =  float(self.inputs["Height"].text()) if self.inputs["Height"].text() else 0.
+        short_description = self.inputs["Short Description"].text()
+        return(date, height, short_description)
 
 class SessionLoader(QDialog):
     def __init__(self, parent):
