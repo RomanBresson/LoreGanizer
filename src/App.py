@@ -63,7 +63,7 @@ class EventNode(QGraphicsEllipseItem):
         self.nameLabel.moveBy(-5, -10)
         self.nameLabel.setRotation(-45)
         self.nameLabel.setScale(1.2)
-    
+
     def update_from_event(self):
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
         self.recompute_lines()
@@ -113,12 +113,13 @@ class EventNode(QGraphicsEllipseItem):
                 additional_timelines.add(line.timeline)
         self.update_event_from_self()
         self.recompute_lines()
+        self.window.recompute_size()
         return super().mouseReleaseEvent(change)
     
     def recompute_lines(self):
         self.window.recompute_lines(self.event.timelines)
         self.setRect(0.,0.,NODE_DIAMETER, NODE_DIAMETER*(max(1,len(self.event.timelines))))
-    
+
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.RightButton:
             self.contextMenuEvent(QMouseEvent)
@@ -210,13 +211,10 @@ class Window(QWidget):
 
         # Set all items as moveable and selectable.
 
-        xmin, xmax, ymin, ymax = 0., 400, 0., 100
-        if len(self.events_nodes):        
-            xmin = min([e.scenePos().x() for e in self.events_nodes.values()])
-            xmax = max([e.scenePos().x() for e in self.events_nodes.values()])
-            ymin = min([e.scenePos().y() for e in self.events_nodes.values()])
-            ymax = max([e.scenePos().y() for e in self.events_nodes.values()])
-        self.scene.setSceneRect(xmin-100, ymin-100, xmax-xmin+100, ymax-ymin+100)
+        if len(self.events_nodes):
+            self.recompute_size()
+        else:
+            self.scene.setSceneRect(-1000, -200, 1000, 200)
         self.recompute_lines()
 
         # Define our layout.
@@ -230,6 +228,8 @@ class Window(QWidget):
         hbox.addWidget(view)
 
         self.setLayout(hbox)
+
+        self.recompute_size()
         
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.RightButton:
@@ -260,6 +260,15 @@ class Window(QWidget):
                     self.timeline_connections[tl_id].append(connection)
                     self.events_nodes[e1].lines.append(connection)
                     self.events_nodes[e2].lines.append(connection)
+
+    def recompute_size(self):
+        if  self.events_nodes.values():
+            max_x = max([e.scenePos().x() for e in self.events_nodes.values()])
+            min_x = min([e.scenePos().x() for e in self.events_nodes.values()])
+            max_y = max([e.scenePos().y() for e in self.events_nodes.values()])
+            min_y = min([e.scenePos().y() for e in self.events_nodes.values()])
+            self.scene.setSceneRect(min_x-500, min_y-500, max_x-min_x+1000, max_y-min_y+1000)
+        
 
 class MyMainWindow(QMainWindow):
     def __init__(self, central_widget):
@@ -310,6 +319,7 @@ class MyMainWindow(QMainWindow):
                 new_node = EventNode(new_event, self.centralWidget())
                 self.centralWidget().scene.addItem(new_node)
                 self.centralWidget().events_nodes[new_event.get_id()] = new_node
+                self.centralWidget().recompute_size()
                 new_node.show()
     
     def create_timeline(self):
