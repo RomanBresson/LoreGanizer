@@ -310,14 +310,15 @@ class MyMainWindow(QMainWindow):
 
     def create_event(self):
         new_obj = EventCreator(self)
-        new_obj.exec()
-        fields = new_obj.getInputs()
-        if fields is not None:
-            new_event = Event(date=fields[0], height=fields[1], short_description=fields[2])
-            new_node = EventNode(new_event, self.centralWidget())
-            self.centralWidget().scene.addItem(new_node)
-            self.centralWidget().events_nodes[new_event.get_id()] = new_node
-            new_node.show()
+        is_created = new_obj.exec()
+        if is_created:
+            fields = new_obj.getInputs()
+            if fields is not None:
+                new_event = Event(date=fields[0], height=fields[1], short_description=fields[2])
+                new_node = EventNode(new_event, self.centralWidget())
+                self.centralWidget().scene.addItem(new_node)
+                self.centralWidget().events_nodes[new_event.get_id()] = new_node
+                new_node.show()
     
     def create_timeline(self):
         editor = SurveyDialog(["Name"], parent=self, add_bottom_button=True)
