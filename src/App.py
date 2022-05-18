@@ -204,23 +204,11 @@ class Window(QWidget):
         
         for timeline_id, timeline in timelines_dict.items():
             self.timeline_connections[timeline_id] = []
-            """
-            for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
-                connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = timeline.get_id(), color=self.colors[timeline.get_id()%len(self.colors)])
-                self.scene.addItem(connection)
-                self.timeline_connections[timeline_id].append(connection)
-            """
         
         for event_node in self.events_nodes.values():
             self.scene.addItem(event_node)
 
         # Set all items as moveable and selectable.
-        """
-        for item in self.scene.items():
-            if isinstance(item, EventNode):
-                item.setFlag(QGraphicsItem.ItemIsMovable)
-                #item.setFlag(QGraphicsItem.ItemIsSelectable)
-        """
 
         xmin, xmax, ymin, ymax = 0., 400, 0., 100
         if len(self.events_nodes):        
@@ -260,7 +248,7 @@ class Window(QWidget):
     
     def recompute_lines(self, list_of_timelines=None):
         if list_of_timelines is None:
-            list_of_timelines = []
+            list_of_timelines = Timeline.timeline_dict.keys()
         for tl_id,timeline in Timeline.timeline_dict.items():
             for conn in self.timeline_connections[tl_id]:
                 self.scene.removeItem(conn)

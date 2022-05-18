@@ -63,19 +63,6 @@ class Timeline:
         else:
             self.__id_nb = id_nb
         Timeline.timeline_dict[self.__id_nb] = self
-        """
-        if (events is None):
-            birth_event = birth if not (birth is None) else Event(date=0, height=0, timelines=[])
-            death_event = death if not (death is None) else Event(date=birth_event.get_date()+1, height=0, timelines=[])
-            birth_event.add_to_timeline(self.__id_nb)
-            death_event.add_to_timeline(self.__id_nb)
-            self.events = [ev.get_id() for ev in sorted([birth_event, death_event])]
-        else:
-            assert(len(events)>=2)
-            self.events = []
-            for ev in events:
-                self.insert_event(Event.event_dict[ev])
-        """
         self.events = events if not events is None else []
         if name is None:
             self.name = str(self.__id_nb)
