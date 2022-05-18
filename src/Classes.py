@@ -131,4 +131,7 @@ def make_timelines_from_events():
     for ev_id, ev in Event.event_dict.items():
         all_ids = all_ids.union(ev.timelines)
     for tl_id in all_ids:
-        tl = Timeline(id_nb=tl_id, events=[ev.get_id() for ev in Event.event_dict.values() if tl_id in ev.timelines])
+        tl = Timeline(id_nb=tl_id, events = [])
+        for ev in Event.event_dict.values():
+            if tl_id in ev.timelines:
+                tl.insert_event(ev)

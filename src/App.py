@@ -201,12 +201,15 @@ class Window(QWidget):
             self.events_nodes[event_id] = event_node
         
         self.colors = [Qt.darkBlue, Qt.darkRed, Qt.darkGreen, Qt.magenta, Qt.blue, Qt.black]
+        
         for timeline_id, timeline in timelines_dict.items():
             self.timeline_connections[timeline_id] = []
+            """
             for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
                 connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = timeline.get_id(), color=self.colors[timeline.get_id()%len(self.colors)])
                 self.scene.addItem(connection)
                 self.timeline_connections[timeline_id].append(connection)
+            """
         
         for event_node in self.events_nodes.values():
             self.scene.addItem(event_node)
@@ -226,6 +229,7 @@ class Window(QWidget):
             ymin = min([e.scenePos().y() for e in self.events_nodes.values()])
             ymax = max([e.scenePos().y() for e in self.events_nodes.values()])
         self.scene.setSceneRect(xmin-100, ymin-100, xmax-xmin+100, ymax-ymin+100)
+        self.recompute_lines()
 
         # Define our layout.
         vbox = QVBoxLayout()
@@ -238,7 +242,7 @@ class Window(QWidget):
         hbox.addWidget(view)
 
         self.setLayout(hbox)
-    
+        
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.RightButton:
             self.contextMenuEvent(QMouseEvent)
