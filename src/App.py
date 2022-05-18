@@ -72,13 +72,7 @@ class EventNode(QGraphicsEllipseItem):
         self.event.set_date(self.x()/DILATION_FACTOR_DATE) 
         self.event.height = self.y()/DILATION_FACTOR_HEIGHT
         self.recompute_lines()
-    
-    def mousePressEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.LeftButton:
-            pass
-        elif QMouseEvent.button() == Qt.RightButton:
-            pass
-        
+           
     def mouseDoubleClickEvent(self, QMouseEvent):
         edit_event_box = NodeInfoBox(self.event, self.parentWidget())
         which_button = edit_event_box.exec()
@@ -268,8 +262,7 @@ class Window(QWidget):
             max_y = max([e.scenePos().y() for e in self.events_nodes.values()])
             min_y = min([e.scenePos().y() for e in self.events_nodes.values()])
             self.scene.setSceneRect(min_x-500, min_y-500, max_x-min_x+1000, max_y-min_y+1000)
-        
-
+            
 class MyMainWindow(QMainWindow):
     def __init__(self, central_widget):
         super().__init__()
