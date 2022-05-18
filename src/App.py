@@ -128,7 +128,6 @@ class EventNode(QGraphicsEllipseItem):
         self.window.layout().addWidget(contextMenu)
         EditEv = contextMenu.addAction("Edit")
         DelEv = contextMenu.addAction("Delete")
-        print((mouseEvent.scenePos()))
         action = contextMenu.exec_()
         
         if action==EditEv:
