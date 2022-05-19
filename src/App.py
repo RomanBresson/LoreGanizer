@@ -120,10 +120,9 @@ class EventNode(QGraphicsEllipseItem):
 
     def contextMenuEvent(self, mouseEvent):
         contextMenu = QMenu(self.window)
-        self.window.layout().addWidget(contextMenu)
         EditEv = contextMenu.addAction("Edit")
         DelEv = contextMenu.addAction("Delete")
-        action = contextMenu.exec_()
+        action = contextMenu.exec_(mouseEvent.screenPos())
         
         if action==EditEv:
             self.mouseDoubleClickEvent(mouseEvent)
