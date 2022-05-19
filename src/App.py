@@ -67,6 +67,7 @@ class EventNode(QGraphicsEllipseItem):
     def update_from_event(self):
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
         self.recompute_lines()
+        self.window.recompute_size()
     
     def update_event_from_self(self):
         self.event.set_date(self.x()/DILATION_FACTOR_DATE) 
