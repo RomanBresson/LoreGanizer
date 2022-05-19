@@ -63,6 +63,7 @@ class EventNode(QGraphicsEllipseItem):
         self.nameLabel.moveBy(-5, -10)
         self.nameLabel.setRotation(-45)
         self.nameLabel.setScale(1.2)
+        self.window.events_nodes[self.event.get_id()] = self
 
     def update_from_event(self):
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
@@ -193,7 +194,6 @@ class Window(QWidget):
             event_node = EventNode(event, self)
             
             # Add the items to the scene. Items are stacked in the order they are added.
-            self.events_nodes[event_id] = event_node
         
         self.colors = [Qt.darkBlue, Qt.darkRed, Qt.darkGreen, Qt.magenta, Qt.blue, Qt.black]
         
@@ -217,6 +217,7 @@ class Window(QWidget):
         view = QGraphicsView(self.scene)
         view.setRenderHint(QPainter.Antialiasing)
 
+        self.view = view
         hbox = QHBoxLayout(self)
         hbox.addLayout(vbox)
         hbox.addWidget(view)
@@ -228,6 +229,7 @@ class Window(QWidget):
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.RightButton:
             self.contextMenuEvent(QMouseEvent)
+            self.recompute_size()
 
     def contextMenuEvent(self, mouseEvent):
         contextMenu = QMenu(self)
@@ -236,9 +238,9 @@ class Window(QWidget):
         if action==newEv:
             new_event = Event(date=0., height=0)
             node = EventNode(new_event, self)
-            node.setPos(node.mapToScene(mouseEvent.pos()))
+            node.setPos(self.view.mapToScene(mouseEvent.pos()))
             node.update_event_from_self()
-            self.scene.addItem(node)
+            self.scene.addItem(node)         
     
     def recompute_lines(self, list_of_timelines=None):
         if list_of_timelines is None:
@@ -311,7 +313,6 @@ class MyMainWindow(QMainWindow):
                 new_event = Event(date=fields[0], height=fields[1], short_description=fields[2])
                 new_node = EventNode(new_event, self.centralWidget())
                 self.centralWidget().scene.addItem(new_node)
-                self.centralWidget().events_nodes[new_event.get_id()] = new_node
                 self.centralWidget().recompute_size()
                 new_node.show()
     
@@ -418,10 +419,6 @@ class NodeInfoBox(SurveyDialog):
         textBox.verticalScrollBar()
         long_desc_editor.layout = QVBoxLayout()
         long_desc_editor.layout.addWidget(textBox)
-        #buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, parent=long_desc_editor)
-        #buttonBox.accepted.connect(self.accept)
-        #buttonBox.rejected.connect(self.reject)
-        #long_desc_editor.layout.addWidget(buttonBox, alignment=(Qt.AlignRight | Qt.AlignBottom))
         long_desc_editor.exec()
 
 class EventCreator(SurveyDialog):
