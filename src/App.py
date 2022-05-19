@@ -58,17 +58,21 @@ class EventNode(QGraphicsEllipseItem):
         self.window = window
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
+        self.set_name_label()
+        self.window.events_nodes[self.event.get_id()] = self
+
+    def set_name_label(self):
         self.nameLabel = QGraphicsTextItem(self)
         self.nameLabel.setPlainText(self.event.short_description)
-        self.nameLabel.moveBy(-5, -10)
         self.nameLabel.setRotation(-45)
-        self.nameLabel.setScale(1.2)
-        self.window.events_nodes[self.event.get_id()] = self
+        self.nameLabel.moveBy(-5, -15)
+        self.nameLabel.setScale(1.25)
 
     def update_from_event(self):
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
         self.recompute_lines()
         self.window.recompute_size()
+        self.set_name_label()
     
     def update_event_from_self(self):
         self.event.set_date(self.x()/DILATION_FACTOR_DATE) 
@@ -432,8 +436,14 @@ class EventCreator(SurveyDialog):
         self.layout.addWidget(self.buttonBox)
     
     def getInputs(self):
-        date = float(self.inputs["Date"].text()) if self.inputs["Date"].text() else 0.
-        height =  float(self.inputs["Height"].text()) if self.inputs["Height"].text() else 0.
+        try:
+            date = float(self.inputs["Date"].text())
+        except:
+            date = 0.
+        try:
+            height =  float(self.inputs["Height"].text())
+        except:
+            height = 0.
         short_description = self.inputs["Short Description"].text()
         return(date, height, short_description)
 
