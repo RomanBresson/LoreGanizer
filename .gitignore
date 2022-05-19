@@ -1,3 +1,4 @@
 # created by virtualenv automatically
 saves/*.json
+!saves/trial_session.json
 *pycache*
