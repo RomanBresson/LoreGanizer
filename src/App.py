@@ -182,7 +182,7 @@ class Connection(QGraphicsLineItem):
 class Window(QWidget):
     def __init__(self, events_dict = None, timelines_dict = None, parent=None):
         super().__init__(parent=parent)
-        self.setStyleSheet("background-color: gray;")
+        self.setStyleSheet("background-color: lightgray;")
         self.timeline_connections = {}
         # Defining a scene rect of 400x200, with it's origin at 0,0.
         # If we don't set this on creation, we can set it later with .setSceneRect

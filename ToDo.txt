@@ -1,3 +1,4 @@
 -Edit timeline style (color/linestyle (dotted/dashed)) for easier intelligibility/not relying on color only
 -Add time scale at the bottom
 -Add panel to display/select timelines/nodes without navigating spacially
+-Add comments
