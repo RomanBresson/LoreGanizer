@@ -240,12 +240,11 @@ class Window(QWidget):
         newEv = contextMenu.addAction("New event")
         action = contextMenu.exec_(self.mapToGlobal(mouseEvent.pos()))
         if action==newEv:
-            new_event = Event(date=0., height=0)
-            node = EventNode(new_event, self)
-            node.setPos(self.view.mapToScene(mouseEvent.pos()))
-            node.update_event_from_self()
-            self.scene.addItem(node)         
-    
+            pos = self.view.mapToScene(mouseEvent.pos())
+            date = pos.x()/DILATION_FACTOR_DATE
+            height = pos.y()/DILATION_FACTOR_HEIGHT
+            self.parent().create_event(date, height)
+
     def recompute_lines(self, list_of_timelines=None):
         if list_of_timelines is None:
             list_of_timelines = Timeline.timeline_dict.keys()
@@ -288,7 +287,7 @@ class MyMainWindow(QMainWindow):
         load_button.triggered.connect(self.load_session)
         toolbar.addAction(load_button)
         new_event = QAction("E+", self)
-        new_event.triggered.connect(self.create_event)
+        new_event.triggered.connect(self.create_event_button)
         toolbar.addAction(new_event)
         new_tl = QAction("T+", self)
         new_tl.triggered.connect(self.create_timeline)
@@ -308,8 +307,11 @@ class MyMainWindow(QMainWindow):
             w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
             self.setCentralWidget(w)
 
-    def create_event(self):
-        new_obj = EventCreator(self)
+    def create_event_button(self):
+        self.create_event()
+
+    def create_event(self, date=None, height=None):
+        new_obj = EventCreator(self, date, height)
         is_created = new_obj.exec()
         if is_created:
             fields = new_obj.getInputs()
@@ -426,13 +428,17 @@ class NodeInfoBox(SurveyDialog):
         long_desc_editor.exec()
 
 class EventCreator(SurveyDialog):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, date=None, height=None):
         super().__init__(labels= ["Date", "Height", "Short Description"], parent=parent)
         self.setWindowTitle("New event")
         onlyDouble = QDoubleValidator()
         self.inputs["Date"].setValidator(onlyDouble)
         self.inputs["Height"].setValidator(onlyDouble)
         self.inputs["Short Description"].setMaxLength(Event.SHORT_DESC_MAX_LENGTH)
+        if date is not None:
+            self.inputs["Date"].setText(str(date))
+        if height is not None:
+            self.inputs["Height"].setText(str(height))
         self.layout.addWidget(self.buttonBox)
     
     def getInputs(self):
