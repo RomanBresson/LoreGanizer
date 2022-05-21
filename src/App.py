@@ -14,6 +14,7 @@ from PyQt5.QtWidgets import (
     QListWidgetItem,
     QListWidget,
     QDialog,
+    QColorDialog,
     QToolBar,
     QSizePolicy,
     QApplication,
@@ -39,6 +40,7 @@ DILATION_FACTOR_DATE = 500
 DILATION_FACTOR_HEIGHT = 100
 SESSION_NAME = ""
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "saves")
+BG_COLOR = 'lightgray'
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):
@@ -182,7 +184,7 @@ class Connection(QGraphicsLineItem):
 class Window(QWidget):
     def __init__(self, events_dict = None, timelines_dict = None, parent=None):
         super().__init__(parent=parent)
-        self.setStyleSheet("background-color: lightgray;")
+        self.setStyleSheet(f"background-color: {BG_COLOR};")
         self.timeline_connections = {}
         # Defining a scene rect of 400x200, with it's origin at 0,0.
         # If we don't set this on creation, we can set it later with .setSceneRect
@@ -292,6 +294,17 @@ class MyMainWindow(QMainWindow):
         new_tl = QAction("T+", self)
         new_tl.triggered.connect(self.create_timeline)
         toolbar.addAction(new_tl)
+        color_bg = QAction("Preferences", self)
+        color_bg.triggered.connect(self.select_color)
+        toolbar.addAction(color_bg)
+
+    def select_color(self):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            global BG_COLOR
+            BG_COLOR = color.name()
+            self.centralWidget().setStyleSheet(f"background-color: {BG_COLOR};")
+
 
     def new_session(self):
         global SESSION_NAME
