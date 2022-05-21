@@ -182,8 +182,14 @@ class Connection(QGraphicsLineItem):
         self.setLine(self._line)
 
 class Window(QWidget):
-    def __init__(self, events_dict = None, timelines_dict = None, parent=None):
+    def __init__(self, events_dict = None, timelines_dict = None, parent=None, meta_data=None):
         super().__init__(parent=parent)
+        global BG_COLOR
+        if meta_data is not None:
+            if "bg_color" in meta_data:
+                BG_COLOR = meta_data["bg_color"]
+            else:
+                BG_COLOR = "lightgray"
         self.setStyleSheet(f"background-color: {BG_COLOR};")
         self.timeline_connections = {}
         # Defining a scene rect of 400x200, with it's origin at 0,0.
@@ -305,7 +311,6 @@ class MyMainWindow(QMainWindow):
             BG_COLOR = color.name()
             self.centralWidget().setStyleSheet(f"background-color: {BG_COLOR};")
 
-
     def new_session(self):
         global SESSION_NAME
         warning_box = QMessageBox()
@@ -358,8 +363,10 @@ class MyMainWindow(QMainWindow):
                     new_session_name = save_as_window.getInputs()[0]
                 else:
                     return
+        meta_data = {}
+        meta_data["bg_color"] = BG_COLOR
         SESSION_NAME = new_session_name
-        Session.json_save(SESSION_NAME)
+        Session.json_save(SESSION_NAME, meta_data)
 
     def save_as_session(self):
         self.save_session(save_as=True)
@@ -368,8 +375,8 @@ class MyMainWindow(QMainWindow):
         global SESSION_NAME
         session_loader = SessionLoader(parent=self)
         session_loader.exec()
-        Session.json_load(SESSION_NAME)
-        w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
+        meta_data = Session.json_load(SESSION_NAME)
+        w = Window(Event.event_dict, Timeline.timeline_dict, parent=None, meta_data=meta_data)
         self.setCentralWidget(w)
 
 class SurveyDialog(QDialog):
