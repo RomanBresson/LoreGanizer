@@ -1,4 +1,9 @@
 class Event:
+    """
+        An event is uniquely defined by its id. 
+
+        It has a date, a height, a short and a long description, and a set of timelines to which it belongs.
+    """
     event_dict = {}
     free_ids = []
     SHORT_DESC_MAX_LENGTH = 50
@@ -45,25 +50,28 @@ class Event:
     def get_short_description(self):
         return(self.short_description)
     
-    def add_to_timeline(self, tl_id):
-        if tl_id not in self.timelines:
-            self.timelines.append(tl_id)
-            self.timelines.sort()
-
     def update(self):
         for timeline in self.timelines:
             Timeline.timeline_dict[timeline].update()
 
 class Timeline:
+    """
+        A timeline is uniquely defined by its Id.
+
+        It possesses a list of events, which should always be ordered by date if time travel is not allowed.
+    """
     timeline_dict = {}
     free_ids = []
-    def __init__(self, birth=None, death=None, id_nb=None, events=None, name=None):
+    def __init__(self, id_nb=None, events=None, name=None):
+        self.events = []
         if id_nb is None:
             self.__id_nb = Timeline.free_ids.pop(0) if (len(Timeline.free_ids)>0) else (max(Timeline.timeline_dict,default=-1)+1)
         else:
             self.__id_nb = id_nb
         Timeline.timeline_dict[self.__id_nb] = self
-        self.events = events if not events is None else []
+        if events:
+            for e in events:
+                self.insert_event(e)
         if name is None:
             self.name = str(self.__id_nb)
         else:
@@ -75,7 +83,8 @@ class Timeline:
     def set_id(self, new_id):
         self.__id_nb = new_id
 
-    def insert_event(self, event_inserted):
+    def insert_event(self, event_id):
+        event_inserted = Event.event_dict[event_id]
         if (len(self.events)==0):
             self.events.append(event_inserted.get_id())
         elif (event_inserted>(Event.event_dict[self.events[-1]])):
@@ -85,11 +94,13 @@ class Timeline:
                 if (event_inserted<(Event.event_dict[ev_id])):
                     break
             self.events = self.events[:i] + [event_inserted.get_id()] + self.events[i:]
-        event_inserted.add_to_timeline(self.__id_nb)
+        if self.__id_nb not in event_inserted.timelines:
+            event_inserted.timelines.append(self.__id_nb)
+            event_inserted.timelines.sort()
     
-    def remove_event(self, event_to_remove):
-        self.events.remove(event_to_remove.get_id())
-        Event.event_dict[event_to_remove.get_id()].timelines.remove(self.__id_nb)
+    def remove_event(self, event_id):
+        self.events.remove(event_id)
+        Event.event_dict[event_id].timelines.remove(self.__id_nb)
     
     def update(self):
         self.events = [e.get_id() for e in sorted([Event.event_dict[i] for i in self.events])]
@@ -121,4 +132,4 @@ def make_timelines_from_events():
         tl = Timeline(id_nb=tl_id, events = [])
         for ev in Event.event_dict.values():
             if tl_id in ev.timelines:
-                tl.insert_event(ev)
+                tl.insert_event(ev.get_id())

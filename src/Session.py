@@ -29,8 +29,11 @@ def json_load(session_name):
             del ev["_Event__date"]
             Event(**ev)
         make_timelines_from_events()
-        for tl_id,tl_name in tl_json.items():
-            Timeline.timeline_dict[int(tl_id)].name = tl_name
+        for tl_id_str,tl_name in tl_json.items():
+            tl_id = int(tl_id_str)
+            if tl_id not in Timeline.timeline_dict: #timelines that are in the saves but have no event
+                Timeline.timeline_dict[tl_id] = Timeline(tl_id)
+            Timeline.timeline_dict[tl_id].name = tl_name
         autocomplete_free_ids_events()
         autocomplete_free_ids_timelines()
 

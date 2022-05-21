@@ -93,10 +93,10 @@ class EventNode(QGraphicsEllipseItem):
             new_tl = [tl_name_to_id[nv] for nv in new_values["Timelines"]]
             for tl_id in old_tl:
                 if tl_id not in new_tl:
-                    Timeline.timeline_dict[tl_id].remove_event(self.event)
+                    Timeline.timeline_dict[tl_id].remove_event(self.event.get_id())
             for tl_id in new_tl:
                 if tl_id not in old_tl:
-                    Timeline.timeline_dict[tl_id].insert_event(self.event)
+                    Timeline.timeline_dict[tl_id].insert_event(self.event.get_id())
         self.update_from_event()
 
     def delete_lines(self):
