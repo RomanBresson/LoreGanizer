@@ -135,8 +135,14 @@ class EventNode(QGraphicsEllipseItem):
         if action==EditEv:
             self.mouseDoubleClickEvent(mouseEvent)
         elif action==DelEv:
-            delete_event(self.event)
-            self.window.scene.removeItem(self)
+            warning_box = QMessageBox()
+            warning_box.setText("Delete this event ?")
+            warning_box.setWindowTitle("Warning")
+            warning_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            ret = warning_box.exec_()
+            if ret:
+                delete_event(self.event)
+                self.window.scene.removeItem(self)
 
 class Connection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, color=Qt.black):

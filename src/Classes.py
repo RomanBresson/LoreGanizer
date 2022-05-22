@@ -13,8 +13,8 @@ class Event:
         else:
             self.__id_nb = id_nb
         self.__date = date
-        self.height = height if (height is not None) else 0.
         self.timelines = timelines if not (timelines is None) else []
+        self.height = height if (height is not None) else (sum(self.timelines)/len(self.timelines) if timelines else 0.)
         self.__class__.event_dict[self.__id_nb] = self
         self.set_short_description("" if short_description is None else short_description)
         self.long_description  = "" if long_description is None else long_description
