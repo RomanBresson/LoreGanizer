@@ -159,7 +159,11 @@ class Connection(QGraphicsLineItem):
         pen = QPen(color)
         pen.setWidth(LINE_WIDTH)
         self.setPen(pen)
-
+        global AppWindow
+        self.window = AppWindow
+        self.window.timeline_connections.setdefault(tl_id, [])
+        self.window.timeline_connections[tl_id].append(self)
+        
     def compute_shifts(self):
         shift_down_start = self.start.event.timelines.index(self.timeline)
         shift_down_end = self.end.event.timelines.index(self.timeline)
@@ -187,6 +191,29 @@ class Connection(QGraphicsLineItem):
         else:
             self._line.setP2(source.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2 + LINE_WIDTH*shift_down))
         self.setLine(self._line)
+
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.RightButton:
+            self.contextMenuEvent(QMouseEvent)
+
+    def contextMenuEvent(self, mouseEvent):
+        contextMenu = QMenu()
+        EditEv = contextMenu.addAction("Edit")
+        DelEv = contextMenu.addAction("Delete")
+        action = contextMenu.exec_(mouseEvent.screenPos())
+        
+        if action==EditEv:
+            self.mouseDoubleClickEvent(mouseEvent)
+        elif action==DelEv:
+            warning_box = QMessageBox()
+            warning_box.setText("Delete this timeline ?")
+            warning_box.setWindowTitle("Warning")
+            warning_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            ret = warning_box.exec_()
+            if ret:
+                for conn in self.window.timeline_connections[self.timeline]:
+                    self.window.scene.removeItem(conn)
+            delete_timeline(self.timeline)
 
 class Window(QWidget):
     def __init__(self, events_dict = None, timelines_dict = None, parent=None, meta_data=None):
@@ -271,7 +298,6 @@ class Window(QWidget):
                 for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
                     connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=self.colors[timeline.get_id()%len(self.colors)])
                     self.scene.addItem(connection)
-                    self.timeline_connections[tl_id].append(connection)
                     self.events_nodes[e1].lines.append(connection)
                     self.events_nodes[e2].lines.append(connection)
 
@@ -521,13 +547,13 @@ colors_for_tl = ["white", "red", "blue", "grey", "green"]
 
 app = QApplication(sys.argv)
 
-w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
+AppWindow = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
 
-MW = MyMainWindow(w)
+MainWindow = MyMainWindow(AppWindow)
 
-MW.saveSc = QShortcut(QKeySequence('Ctrl+S'), MW)
-MW.saveSc.activated.connect(MW.save_session)
+MainWindow.saveSc = QShortcut(QKeySequence('Ctrl+S'), MainWindow)
+MainWindow.saveSc.activated.connect(MainWindow.save_session)
 
-MW.show()
+MainWindow.show()
 
 app.exec()

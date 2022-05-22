@@ -106,10 +106,10 @@ class Timeline:
         self.events = [e.get_id() for e in sorted([Event.event_dict[i] for i in self.events])]
 
 def delete_timeline(tl):
-    Timeline.free_ids.append(tl.get_id())
-    for ev in tl.events:
-        Event.event_dict[ev].timelines.remove(tl.get_id())
-    del Timeline.timeline_dict[tl.get_id()]
+    Timeline.free_ids.append(tl)
+    for ev in Timeline.timeline_dict[tl].events:
+        Event.event_dict[ev].timelines.remove(tl)
+    del Timeline.timeline_dict[tl]
     del tl
 
 def delete_event(ev):
@@ -120,7 +120,7 @@ def delete_event(ev):
         if (len(Timeline.timeline_dict[tl].events)<=1):
             marked_for_deletion.append(tl)
     for tl in marked_for_deletion:
-        delete_timeline(Timeline.timeline_dict[tl])
+        delete_timeline(tl)
     del Event.event_dict[ev.get_id()]
     del ev
 
