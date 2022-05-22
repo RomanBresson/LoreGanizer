@@ -213,6 +213,44 @@ class Connection(QGraphicsLineItem):
                 for conn in self.window.timeline_connections[self.timeline]:
                     self.window.scene.removeItem(conn)
             delete_timeline(self.timeline)
+            del self.window.timeline_connections[self.timeline]
+    
+    def mouseDoubleClickEvent(self, QMouseEvent):
+        edit_event_box = TimeLineInfoBox(Timeline.timeline_dict[self.timeline], self.parentWidget())
+        which_button = edit_event_box.exec()
+        new_values = edit_event_box.getInputs()
+        if which_button:
+            Timeline.timeline_dict[self.timeline].name = new_values[0]
+        self.window.recompute_size()
+
+class SurveyDialog(QDialog):
+    def __init__(self, labels, parent=None, add_bottom_button=False):
+        super().__init__(parent)
+        
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
+        self.layout = QFormLayout(self)
+        
+        self.inputs = {}
+        for lab in labels:
+            self.inputs[lab] = QLineEdit(self)
+            self.layout.addRow(lab, self.inputs[lab])
+        self.buttonBox = buttonBox
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+        if add_bottom_button:
+            self.layout.addWidget(buttonBox)
+                
+    def getInputs(self):
+        return tuple(input.text() for input in self.inputs.values())
+
+class TimeLineInfoBox(SurveyDialog):
+    def __init__(self, timeline, parent=None):
+        self.timeline = timeline
+        items_list = ["Name"]
+        super().__init__(labels=items_list, parent=parent)
+        self.setWindowTitle("Timeline editor")
+        self.inputs["Name"].setText(timeline.name)
+        self.layout.addWidget(self.buttonBox)
 
 class Window(QWidget):
     def __init__(self, events_dict = None, timelines_dict = None, parent=None, meta_data=None):
@@ -410,26 +448,6 @@ class MyMainWindow(QMainWindow):
         meta_data = Session.json_load(SESSION_NAME)
         w = Window(Event.event_dict, Timeline.timeline_dict, parent=None, meta_data=meta_data)
         self.setCentralWidget(w)
-
-class SurveyDialog(QDialog):
-    def __init__(self, labels, parent=None, add_bottom_button=False):
-        super().__init__(parent)
-        
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        self.layout = QFormLayout(self)
-        
-        self.inputs = {}
-        for lab in labels:
-            self.inputs[lab] = QLineEdit(self)
-            self.layout.addRow(lab, self.inputs[lab])
-        self.buttonBox = buttonBox
-        buttonBox.accepted.connect(self.accept)
-        buttonBox.rejected.connect(self.reject)
-        if add_bottom_button:
-            self.layout.addWidget(buttonBox)
-                
-    def getInputs(self):
-        return tuple(input.text() for input in self.inputs.values())
 
 class NodeInfoBox(SurveyDialog):
     def __init__(self, event, parent=None):
