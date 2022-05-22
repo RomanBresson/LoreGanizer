@@ -4,9 +4,10 @@ import Session
 from Classes import *
 
 from PyQt5.QtCore import Qt, QLineF, QPointF, QPoint
-from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QTransform, QCursor
+from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QTransform, QCursor, QKeySequence
 from PyQt5.QtWidgets import (
     QPushButton,
+    QShortcut,
     QDialogButtonBox,
     QFormLayout,
     QLineEdit,
@@ -523,6 +524,9 @@ app = QApplication(sys.argv)
 w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
 
 MW = MyMainWindow(w)
+
+MW.saveSc = QShortcut(QKeySequence('Ctrl+S'), MW)
+MW.saveSc.activated.connect(MW.save_session)
 
 MW.show()
 
