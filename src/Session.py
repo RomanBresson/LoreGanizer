@@ -1,7 +1,9 @@
 from Classes import *
 import json
 
-def json_save(session_name, meta_data):
+def json_save(session_name, meta_data=None):
+    if meta_data is None:
+        meta_data = {}
     for event in Event.event_dict.values():
         event.timelines.sort()
     events_str = {i:Event.event_dict[i].__dict__ for i in Event.event_dict}
