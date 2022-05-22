@@ -146,7 +146,7 @@ class EventNode(QGraphicsEllipseItem):
                 self.window.scene.removeItem(self)
 
 class Connection(QGraphicsLineItem):
-    def __init__(self, start, end, tl_id, color=Qt.black):
+    def __init__(self, start, end, tl_id, window, color=Qt.black):
         super().__init__()
         self.start = start
         self.end = end
@@ -159,8 +159,7 @@ class Connection(QGraphicsLineItem):
         pen = QPen(color)
         pen.setWidth(LINE_WIDTH)
         self.setPen(pen)
-        global AppWindow
-        self.window = AppWindow
+        self.window = window
         self.window.timeline_connections.setdefault(tl_id, [])
         self.window.timeline_connections[tl_id].append(self)
         
@@ -296,7 +295,7 @@ class Window(QWidget):
             self.timeline_connections[tl_id] = []
             if (len(timeline.events)>1):
                 for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
-                    connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=self.colors[timeline.get_id()%len(self.colors)])
+                    connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=self.colors[timeline.get_id()%len(self.colors)], window=self)
                     self.scene.addItem(connection)
                     self.events_nodes[e1].lines.append(connection)
                     self.events_nodes[e2].lines.append(connection)
