@@ -121,6 +121,9 @@ class EventNode(QGraphicsEllipseItem):
     
     def recompute_lines(self):
         self.window.recompute_lines(self.event.timelines)
+        self.recompute_node_size()
+
+    def recompute_node_size(self):
         self.setRect(0.,0.,NODE_DIAMETER, NODE_DIAMETER*(max(1,len(self.event.timelines))))
 
     def mousePressEvent(self, QMouseEvent):
@@ -229,9 +232,11 @@ class Connection(QGraphicsLineItem):
                 for ev_id in old_events:
                     if ev_id not in new_events:
                         timeline.remove_event(ev_id)
+                        self.window.events_nodes[ev_id].recompute_node_size()
                 for ev_id in new_events:
                     if ev_id not in old_events:
                         timeline.insert_event(ev_id)
+                        self.window.events_nodes[ev_id].recompute_node_size()
         self.window.recompute_lines()
         self.window.recompute_size()
 
