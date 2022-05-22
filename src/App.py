@@ -216,11 +216,23 @@ class Connection(QGraphicsLineItem):
             del self.window.timeline_connections[self.timeline]
     
     def mouseDoubleClickEvent(self, QMouseEvent):
-        edit_event_box = TimeLineInfoBox(Timeline.timeline_dict[self.timeline], self.parentWidget())
+        timeline = Timeline.timeline_dict[self.timeline]
+        edit_event_box = TimeLineInfoBox(timeline, self.parentWidget())
         which_button = edit_event_box.exec()
         new_values = edit_event_box.getInputs()
+        sd_to_id = {f'{ev_id}: {ev.short_description}':ev_id for ev_id,ev in Event.event_dict.items()}
         if which_button:
-            Timeline.timeline_dict[self.timeline].name = new_values[0]
+            timeline.name = new_values["Name"]
+            if new_values["Events"]:
+                new_events = [sd_to_id[nv] for nv in new_values["Events"]]
+                old_events = timeline.events
+                for ev_id in old_events:
+                    if ev_id not in new_events:
+                        timeline.remove_event(ev_id)
+                for ev_id in new_events:
+                    if ev_id not in old_events:
+                        timeline.insert_event(ev_id)
+        self.window.recompute_lines()
         self.window.recompute_size()
 
 class SurveyDialog(QDialog):
@@ -245,12 +257,30 @@ class SurveyDialog(QDialog):
 
 class TimeLineInfoBox(SurveyDialog):
     def __init__(self, timeline, parent=None):
-        self.timeline = timeline
         items_list = ["Name"]
         super().__init__(labels=items_list, parent=parent)
         self.setWindowTitle("Timeline editor")
         self.inputs["Name"].setText(timeline.name)
+        self.inputs["Events"] = QListWidget(self)
+        self.inputs["Events"].setSelectionMode(2)
+        self.inputs["Events"].setWordWrap(True)
+        self.inputs["Events"].setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.inputs["Events"].setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        for ev_id, ev in Event.event_dict.items():
+            next_item = QListWidgetItem(f'{ev_id}: {ev.short_description}', parent = self.inputs["Events"])
+            next_item.setText(f"{ev_id}: {ev.short_description}")
+            if ev_id in timeline.events:
+                next_item.setSelected(True)
+            self.inputs["Events"].addItem(next_item)
+
+        self.layout.addRow(self.inputs["Events"])
         self.layout.addWidget(self.buttonBox)
+    
+    def getInputs(self):
+        dict_ret = {}
+        dict_ret["Name"] = self.inputs["Name"].text()
+        dict_ret["Events"] = [s.text() for s in self.inputs["Events"].selectedItems()]
+        return(dict_ret)
 
 class Window(QWidget):
     def __init__(self, events_dict = None, timelines_dict = None, parent=None, meta_data=None):
@@ -261,7 +291,7 @@ class Window(QWidget):
                 BG_COLOR = meta_data["bg_color"]
             else:
                 BG_COLOR = "lightgray"
-        self.setStyleSheet(f"background-color: {BG_COLOR};")
+        self.setStyleSheet(f'background-color: {BG_COLOR};')
         self.timeline_connections = {}
         # Defining a scene rect of 400x200, with it's origin at 0,0.
         # If we don't set this on creation, we can set it later with .setSceneRect
@@ -379,7 +409,7 @@ class MyMainWindow(QMainWindow):
         if color.isValid():
             global BG_COLOR
             BG_COLOR = color.name()
-            self.centralWidget().setStyleSheet(f"background-color: {BG_COLOR};")
+            self.centralWidget().setStyleSheet(f'background-color: {BG_COLOR};')
 
     def new_session(self):
         global SESSION_NAME
