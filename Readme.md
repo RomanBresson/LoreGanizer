@@ -20,7 +20,7 @@ It allows to represent events as nodes. An event has:
 
 Timelines are sets of connected events. The events are necessarily ordered (by date) in a timeline (time travel is not possible yet).
 
-
+![GH](https://user-images.githubusercontent.com/22815154/169899950-e9533579-c684-428c-a316-1588e5d50ad0.png)
 
 # How to use ?
 ## Install and run
