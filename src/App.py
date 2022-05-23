@@ -411,15 +411,19 @@ class MyMainWindow(QMainWindow):
         load_button = QAction("Load", self)
         load_button.triggered.connect(self.load_session)
         fileMenu.addAction(load_button)
-        new_event = QAction("E+", self)
+
+        createMenu = menuBar.addMenu("Create")
+        new_event = QAction("Event", self)
         new_event.triggered.connect(self.create_event_button)
-        menuBar.addAction(new_event)
-        new_tl = QAction("T+", self)
+        createMenu.addAction(new_event)
+        new_tl = QAction("Timeline", self)
         new_tl.triggered.connect(self.create_timeline)
-        menuBar.addAction(new_tl)
-        color_bg = QAction("Preferences", self)
+        createMenu.addAction(new_tl)
+        
+        prefMenu = menuBar.addMenu("Preferences")
+        color_bg = QAction("Theme", self)
         color_bg.triggered.connect(self.select_color)
-        menuBar.addAction(color_bg)
+        prefMenu.addAction(color_bg)
 
     def select_color(self):
         color = QColorDialog.getColor()
