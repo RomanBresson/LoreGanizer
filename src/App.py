@@ -42,6 +42,7 @@ DILATION_FACTOR_HEIGHT = 100
 SESSION_NAME = ""
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "saves")
 BG_COLOR = 'lightgray'
+NODE_DEFAULT_COLOR = 'white'
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):
@@ -540,13 +541,15 @@ class NodeInfoBox(SurveyDialog):
         long_desc_editor = QDialog(parent=self.parent())
         textBox = QPlainTextEdit(long_desc_editor)
         textBox.setPlainText(self.event.long_description)
+        #textBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
         long_desc_editor.resize(500, 500)
         textBox.resize(490, 490)
         textBox.move(5, 5)
         textBox.verticalScrollBar()
         long_desc_editor.layout = QVBoxLayout()
         long_desc_editor.layout.addWidget(textBox)
-        long_desc_editor.exec()
+        long_desc = long_desc_editor.exec()
+        self.event.long_description = textBox.toPlainText()
 
 class EventCreator(SurveyDialog):
     def __init__(self, parent=None, date=None, height=None):
