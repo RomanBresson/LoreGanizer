@@ -59,7 +59,7 @@ class Timeline:
         A timeline is uniquely defined by its Id.
 
         It possesses a list of events, which should always be ordered by date if time travel is not allowed.
-    """
+    """ 
     timeline_dict = {}
     free_ids = []
     def __init__(self, id_nb=None, events=None, name=None):

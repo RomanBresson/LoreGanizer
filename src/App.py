@@ -203,7 +203,6 @@ class Connection(QGraphicsLineItem):
         EditEv = contextMenu.addAction("Edit")
         DelEv = contextMenu.addAction("Delete")
         action = contextMenu.exec_(mouseEvent.screenPos())
-        
         if action==EditEv:
             self.mouseDoubleClickEvent(mouseEvent)
         elif action==DelEv:
@@ -215,8 +214,8 @@ class Connection(QGraphicsLineItem):
             if ret:
                 for conn in self.window.timeline_connections[self.timeline]:
                     self.window.scene.removeItem(conn)
-            delete_timeline(self.timeline)
-            del self.window.timeline_connections[self.timeline]
+                delete_timeline(self.timeline)
+                del self.window.timeline_connections[self.timeline]
     
     def mouseDoubleClickEvent(self, QMouseEvent):
         timeline = Timeline.timeline_dict[self.timeline]
