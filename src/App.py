@@ -4,7 +4,7 @@ import Session
 from Classes import *
 
 from PyQt5.QtCore import Qt, QLineF, QPointF, QPoint
-from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QTransform, QCursor, QKeySequence
+from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QTransform, QCursor, QKeySequence, QColor
 from PyQt5.QtWidgets import (
     QPushButton,
     QShortcut,
@@ -159,7 +159,7 @@ class Connection(QGraphicsLineItem):
         end.lines.append(self)
         self.compute_shifts()
         self.setLine(self._line)
-        pen = QPen(color)
+        pen = QPen(QColor(color))
         pen.setWidth(LINE_WIDTH)
         self.setPen(pen)
         self.window = window
@@ -287,7 +287,7 @@ class TimeLineInfoBox(SurveyDialog):
     def select_color(self):
         color = QColorDialog.getColor()
         if color.isValid():
-            self.timeline.color = color
+            self.timeline.color = color.name()
             global MainWindow
             MainWindow.centralWidget().recompute_lines([self.timeline.get_id()])
 
@@ -323,7 +323,7 @@ class Window(QWidget):
             
             # Add the items to the scene. Items are stacked in the order they are added.
         
-        self.colors = [Qt.darkBlue, Qt.darkRed, Qt.darkGreen, Qt.magenta, Qt.blue, Qt.black]
+        self.colors = ["#bf0000", "#00bf00", "#0000bf", "#bfbf00", "#bf00bf", "#00bfbf"]
         
         for timeline_id, timeline in timelines_dict.items():
             self.timeline_connections[timeline_id] = []

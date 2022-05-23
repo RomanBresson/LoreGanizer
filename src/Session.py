@@ -7,7 +7,7 @@ def json_save(session_name, meta_data=None):
     for event in Event.event_dict.values():
         event.timelines.sort()
     events_str = {i:Event.event_dict[i].__dict__ for i in Event.event_dict}
-    timelines_str = {i:Timeline.timeline_dict[i].name for i in Timeline.timeline_dict}
+    timelines_str = {i:Timeline.timeline_dict[i].save_dict() for i in Timeline.timeline_dict}
     complete_str = {"events": events_str, "timelines": timelines_str}
     complete_str["meta_data"] = {}
     for k,v in meta_data.items():
@@ -37,11 +37,12 @@ def json_load(session_name):
             del ev["_Event__date"]
             Event(**ev)
         make_timelines_from_events()
-        for tl_id_str,tl_name in tl_json.items():
+        for tl_id_str,tl_dict in tl_json.items():
             tl_id = int(tl_id_str)
             if tl_id not in Timeline.timeline_dict: #timelines that are in the saves but have no event
                 Timeline.timeline_dict[tl_id] = Timeline(tl_id)
-            Timeline.timeline_dict[tl_id].name = tl_name
+            Timeline.timeline_dict[tl_id].name = tl_dict["Name"]
+            Timeline.timeline_dict[tl_id].color = tl_dict["Color"]
         autocomplete_free_ids_events()
         autocomplete_free_ids_timelines()
         return(meta_data)

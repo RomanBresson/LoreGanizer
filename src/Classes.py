@@ -105,6 +105,13 @@ class Timeline:
     
     def update(self):
         self.events = [e.get_id() for e in sorted([Event.event_dict[i] for i in self.events])]
+    
+    def save_dict(self):
+        dict_of_self = {
+            "Name": self.name,
+            "Color": self.color
+        }
+        return(dict_of_self)
 
 def delete_timeline(tl):
     Timeline.free_ids.append(tl)
