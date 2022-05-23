@@ -4,8 +4,8 @@ import os
 import Session
 from Classes import *
 
-from PyQt5.QtCore import Qt, QLineF, QPointF, QPoint
-from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QTransform, QCursor, QKeySequence, QColor
+from PyQt5.QtCore import Qt, QLineF, QPointF
+from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QKeySequence, QColor
 from PyQt5.QtWidgets import (
     QPushButton,
     QShortcut,
@@ -17,8 +17,6 @@ from PyQt5.QtWidgets import (
     QListWidget,
     QDialog,
     QColorDialog,
-    QToolBar,
-    QSizePolicy,
     QApplication,
     QGraphicsEllipseItem,
     QMenu,
