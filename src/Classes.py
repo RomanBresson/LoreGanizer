@@ -7,7 +7,7 @@ class Event:
     event_dict = {}
     free_ids = []
     SHORT_DESC_MAX_LENGTH = 50
-    def __init__(self, id_nb=None, date=0., height=None, timelines=None, short_description=None, long_description=None):
+    def __init__(self, id_nb=None, date=0., height=None, timelines=None, short_description=None, long_description=None, color="default"):
         if id_nb is None:
             self.__id_nb = Event.free_ids.pop(0) if (len(Event.free_ids)>0) else (max(Event.event_dict,default=-1)+1)
         else:
@@ -18,6 +18,7 @@ class Event:
         self.__class__.event_dict[self.__id_nb] = self
         self.set_short_description("" if short_description is None else short_description)
         self.long_description  = "" if long_description is None else long_description
+        self.color = color
 
     def __gt__(self, other):
         return(self.__date>other.__date)

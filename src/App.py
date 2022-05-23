@@ -1,5 +1,6 @@
 import sys
 import os
+
 import Session
 from Classes import *
 
@@ -53,7 +54,8 @@ class EventNode(QGraphicsEllipseItem):
             if ((len(tls)>0)):
                 self.event.height = sum(tls)/len(tls)
         self.setZValue(10)
-        brush = QBrush(Qt.white)
+        color = NODE_DEFAULT_COLOR if (event.color=="default") else event.color
+        brush = QBrush(QColor(color))
         self.setBrush(brush)
         pen = QPen(Qt.black)
         pen.setWidth(1)
@@ -84,7 +86,7 @@ class EventNode(QGraphicsEllipseItem):
         self.recompute_lines()
            
     def mouseDoubleClickEvent(self, QMouseEvent):
-        edit_event_box = NodeInfoBox(self.event, self.parentWidget())
+        edit_event_box = NodeInfoBox(self.event, self, self.parentWidget())
         which_button = edit_event_box.exec()
         new_values = edit_event_box.getInputs()
         if which_button:
@@ -502,8 +504,9 @@ class MyMainWindow(QMainWindow):
         self.setCentralWidget(w)
 
 class NodeInfoBox(SurveyDialog):
-    def __init__(self, event, parent=None):
+    def __init__(self, event, eventNode, parent=None):
         self.event = event
+        self.eventNode = eventNode
         items_list = ["Short Description", "Date", "Height"]
         super().__init__(labels=items_list, parent=parent)
         self.setWindowTitle("Event editor")
@@ -514,6 +517,10 @@ class NodeInfoBox(SurveyDialog):
         self.layout.addRow("Long Description", self.inputs["Long Description"])
         self.inputs["Long Description"].setText("Click to edit")
         self.inputs["Long Description"].clicked.connect(self.edit_long_description)
+        self.inputs["Color"] = QPushButton(self)
+        self.layout.addRow("Color", self.inputs["Color"])
+        self.inputs["Color"].setText("Click to edit")
+        self.inputs["Color"].clicked.connect(self.select_color)
         self.inputs["Timelines"] = QListWidget(self)
         self.inputs["Timelines"].setSelectionMode(2)
         self.inputs["Timelines"].setWordWrap(True)
@@ -527,6 +534,13 @@ class NodeInfoBox(SurveyDialog):
             self.inputs["Timelines"].addItem(next_item)
         self.layout.addRow(self.inputs["Timelines"])
         self.layout.addWidget(self.buttonBox)
+
+    def select_color(self):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            self.event.color = color.name()
+            brush = QBrush(QColor(color))
+            self.eventNode.setBrush(brush)
     
     def getInputs(self):
         dict_ret = {}
