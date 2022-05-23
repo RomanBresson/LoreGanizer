@@ -263,8 +263,13 @@ class TimeLineInfoBox(SurveyDialog):
     def __init__(self, timeline, parent=None):
         items_list = ["Name"]
         super().__init__(labels=items_list, parent=parent)
+        self.timeline = timeline
         self.setWindowTitle("Timeline editor")
         self.inputs["Name"].setText(timeline.name)
+        self.inputs["Color"] = QPushButton(self)
+        self.layout.addRow("Color", self.inputs["Color"])
+        self.inputs["Color"].setText("Click to edit")
+        self.inputs["Color"].clicked.connect(self.select_color)
         self.inputs["Events"] = QListWidget(self)
         self.inputs["Events"].setSelectionMode(2)
         self.inputs["Events"].setWordWrap(True)
@@ -276,10 +281,16 @@ class TimeLineInfoBox(SurveyDialog):
             if ev_id in timeline.events:
                 next_item.setSelected(True)
             self.inputs["Events"].addItem(next_item)
-
         self.layout.addRow(self.inputs["Events"])
         self.layout.addWidget(self.buttonBox)
     
+    def select_color(self):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            self.timeline.color = color
+            global MainWindow
+            MainWindow.centralWidget().recompute_lines([self.timeline.get_id()])
+
     def getInputs(self):
         dict_ret = {}
         dict_ret["Name"] = self.inputs["Name"].text()
@@ -316,6 +327,8 @@ class Window(QWidget):
         
         for timeline_id, timeline in timelines_dict.items():
             self.timeline_connections[timeline_id] = []
+            if timeline.color is None:
+                timeline.color = self.colors[timeline.get_id()%len(self.colors)]
         
         for event_node in self.events_nodes.values():
             self.scene.addItem(event_node)
@@ -367,7 +380,7 @@ class Window(QWidget):
             self.timeline_connections[tl_id] = []
             if (len(timeline.events)>1):
                 for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
-                    connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=self.colors[timeline.get_id()%len(self.colors)], window=self)
+                    connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=timeline.color, window=self)
                     self.scene.addItem(connection)
                     self.events_nodes[e1].lines.append(connection)
                     self.events_nodes[e2].lines.append(connection)
