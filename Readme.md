@@ -39,8 +39,8 @@ You can create, save, and load sessions using the toolbar. The files are saved i
 ## Handling events
 
 Events can be created in two ways:
-* Using the E+ button in the toolbar allows to create an event and set its height, date and short description instantly
-* Right-clicking anywhere and selecting "Create event" will create an event at the position of the click 
+* Using the "Create" menu of the toolbar allows to create an event and set its height, date and short description
+* Right-clicking anywhere and selecting "Create event" will create an event at the position of the click
 
 Events can be deleted by right-clicking the event and choosing the "Delete" option.
 
@@ -56,7 +56,7 @@ This opens an editor which allows you to
 
 ## Handling timelines
 
-Timelines can be created by clicking on the T+ button of the toolbar.
+Timelines can be created by using the "Create" menu of the toolbar.
 
 Once created, events can be added to the timeline by double-clicking those events and highlighting the desired timeline. They can be removed in the same way.
 
