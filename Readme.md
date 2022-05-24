@@ -1,6 +1,6 @@
-# CrossRoadsTracker
+# LoreGanizer
 
-Whether for story-writing, process-management or simply keeping tracks of interacting chains of events, CrossRoadsTracker is designed to be a tool for easy creation, edition and visualization of intertwined timelines. 
+Whether for story-writing, process-management or simply keeping tracks of interacting chains of events, LoreGanizer is designed to be a tool for easy creation, edition and visualization of intertwined timelines. 
 
 Visualization is akin to the way public transportation/metro lines are often represented, to ensure readability.
 
@@ -27,8 +27,8 @@ Timelines are sets of connected events. The events are necessarily ordered (by d
 
 This was tested and made using Python 3.9. Using a virtualenv is recommended.
 
-    git clone https://github.com/RomanBresson/CrossRoadsTracker
-    cd CrossRoadsTracker
+    git clone https://github.com/RomanBresson/LoreGanizer
+    cd LoreGanizer
     pip install -r requirements.txt
     python src/App.py
 
