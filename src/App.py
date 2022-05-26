@@ -8,9 +8,13 @@ from PyQt5.QtCore import Qt, QLineF, QPointF
 from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QKeySequence, QColor
 from PyQt5.QtWidgets import (
     QPushButton,
+    QToolBar,
     QShortcut,
+    QLabel,
+    QSizePolicy,
     QDialogButtonBox,
     QFormLayout,
+    QSlider,
     QLineEdit,
     QMessageBox,
     QListWidgetItem,
@@ -398,6 +402,32 @@ class MyMainWindow(QMainWindow):
     def __init__(self, central_widget):
         super().__init__()
         self.setCentralWidget(central_widget)
+
+        self.sideMenu = QToolBar(self)
+        self.addToolBar(Qt.LeftToolBarArea, self.sideMenu)
+
+        self.horizontal_zoom = QSlider(Qt.Horizontal)
+        self.horizontal_zoom.setMinimum(0)
+        self.horizontal_zoom.setMaximum(2000)
+        self.horizontal_zoom.setValue(500)
+        label_h_zoom, label_v_zoom = QLabel(self), QLabel(self)
+        label_h_zoom.setText("Horizontal zoom")
+        label_v_zoom.setText("Vertical zoom")
+        self.sideMenu.addWidget(label_h_zoom)
+        self.sideMenu.addWidget(self.horizontal_zoom)
+        self.horizontal_zoom.setTickPosition(QSlider.TicksBelow)
+        self.horizontal_zoom.setTickInterval(500)
+        self.vertical_zoom = QSlider(Qt.Horizontal)
+        self.vertical_zoom.setMinimum(0)
+        self.vertical_zoom.setMaximum(500)
+        self.vertical_zoom.setValue(10)
+        self.vertical_zoom.setTickPosition(QSlider.TicksBelow)
+        self.vertical_zoom.setTickInterval(125)
+        self.sideMenu.addWidget(label_v_zoom)
+        self.sideMenu.addWidget(self.vertical_zoom)
+        self.vertical_zoom.valueChanged.connect(self.change_vertical_dilation_factor)
+        self.horizontal_zoom.valueChanged.connect(self.change_horizontal_dilation_factor)
+
         menuBar = self.menuBar()#QMenu("Tools")
         fileMenu = menuBar.addMenu("File")
         new_button = QAction("New", self)
@@ -500,6 +530,18 @@ class MyMainWindow(QMainWindow):
         meta_data = Session.json_load(SESSION_NAME)
         w = Window(Event.event_dict, Timeline.timeline_dict, parent=None, meta_data=meta_data)
         self.setCentralWidget(w)
+    
+    def change_horizontal_dilation_factor(self):
+        global DILATION_FACTOR_DATE
+        DILATION_FACTOR_DATE = self.horizontal_zoom.value()
+        for ev_id, ev in self.centralWidget().events_nodes.items():
+            ev.update_from_event()
+    
+    def change_vertical_dilation_factor(self):
+        global DILATION_FACTOR_HEIGHT
+        DILATION_FACTOR_HEIGHT = self.vertical_zoom.value()
+        for ev_id, ev in self.centralWidget().events_nodes.items():
+            ev.update_from_event()
 
 class NodeInfoBox(SurveyDialog):
     def __init__(self, event, eventNode, parent=None):
