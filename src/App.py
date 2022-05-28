@@ -46,6 +46,7 @@ SESSION_NAME = ""
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "saves")
 BG_COLOR = 'lightgray'
 NODE_DEFAULT_COLOR = 'white'
+FONT_DEFAULT_COLOR = 'black'
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):
@@ -57,6 +58,7 @@ class EventNode(QGraphicsEllipseItem):
                 self.event.height = sum(tls)/len(tls)
         self.setZValue(10)
         color = NODE_DEFAULT_COLOR if (event.color=="default") else event.color
+        font_color = FONT_DEFAULT_COLOR if (event.font_color=="default") else event.font_color
         brush = QBrush(QColor(color))
         self.setBrush(brush)
         pen = QPen(Qt.black)
@@ -67,21 +69,23 @@ class EventNode(QGraphicsEllipseItem):
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
         self.nameLabel = QGraphicsTextItem(self)
+        self.nameLabel.setRotation(-45)
+        self.nameLabel.moveBy(-5, -15)
+        self.nameLabel.setScale(1.25)
         self.set_name_label()
         self.dateLabel = QGraphicsTextItem(self)
+        self.dateLabel.moveBy(-5, 5)
+        self.dateLabel.setScale(1.25)
         self.set_date_label()
         self.window.events_nodes[self.event.get_id()] = self
 
     def set_name_label(self):
+        self.nameLabel.setDefaultTextColor(QColor(self.event.font_color))
         self.nameLabel.setPlainText(self.event.short_description)
-        self.nameLabel.setRotation(-45)
-        self.nameLabel.moveBy(-5, -15)
-        self.nameLabel.setScale(1.25)
     
     def set_date_label(self):
+        self.dateLabel.setDefaultTextColor(QColor(self.event.font_color))
         self.dateLabel.setPlainText(str(self.event.get_date()))
-        self.dateLabel.moveBy(-5, 5)
-        self.dateLabel.setScale(1.25)
 
     def update_from_event(self):
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
@@ -656,6 +660,10 @@ class NodeInfoBox(SurveyDialog):
         self.layout.addRow("Color", self.inputs["Color"])
         self.inputs["Color"].setText("Click to edit")
         self.inputs["Color"].clicked.connect(self.select_color)
+        self.inputs["Font color"] = QPushButton(self)
+        self.layout.addRow("Font color", self.inputs["Font color"])
+        self.inputs["Font color"].setText("Click to edit")
+        self.inputs["Font color"].clicked.connect(self.select_font_color)
         self.inputs["Timelines"] = QListWidget(self)
         self.inputs["Timelines"].setSelectionMode(2)
         self.inputs["Timelines"].setWordWrap(True)
@@ -676,6 +684,13 @@ class NodeInfoBox(SurveyDialog):
             self.event.color = color.name()
             brush = QBrush(QColor(color))
             self.eventNode.setBrush(brush)
+    
+    def select_font_color(self):
+        color = QColorDialog.getColor()
+        if color.isValid():
+            self.event.font_color = color.name()
+            self.eventNode.set_name_label()
+            self.eventNode.set_date_label()
     
     def getInputs(self):
         dict_ret = {}
