@@ -152,6 +152,8 @@ class EventNode(QGraphicsEllipseItem):
             if ret:
                 delete_event(self.event)
                 self.window.scene.removeItem(self)
+                global MainWindow
+                MainWindow.sideMenu.events_list.update_events()
 
 class Connection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, window, color=Qt.black):
@@ -397,15 +399,40 @@ class Window(QWidget):
             max_y = max([e.scenePos().y() for e in self.events_nodes.values()])
             min_y = min([e.scenePos().y() for e in self.events_nodes.values()])
             self.scene.setSceneRect(min_x-500, min_y-500, max_x-min_x+1000, max_y-min_y+1000)
-            
-class MyMainWindow(QMainWindow):
-    def __init__(self, central_widget):
+
+class EventListItem(QListWidgetItem):
+    def __init__(self, str_display, event_id, parent):
+        super().__init__(str_display)
+        self.event_id = event_id
+
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.RightButton:
+            global MainWindow
+            MainWindow.centralWidget().event_nodes[self.event_id].mousePressEvent(QMouseEvent)
+
+    def mouseDoubleClickEvent(self, QMouseEvent):
+        global MainWindow
+        MainWindow.centralWidget().event_nodes[self.event_id].mouseDoubleClickEvent(QMouseEvent)
+
+class EventsPanel(QListWidget):
+    def __init__(self, parent):
         super().__init__()
-        self.setCentralWidget(central_widget)
+        self.setSelectionMode(0)
+        self.setWordWrap(True)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.update_events()
+    
+    def update_events(self):
+        self.clear()
+        for ev_id, ev in Event.event_dict.items():
+            next_item = EventListItem(f'{ev_id}: {ev.short_description}', ev_id, parent = self)
+            next_item.setText(f"{ev_id}: {ev.short_description}")
+            self.addItem(next_item)
 
-        self.sideMenu = QToolBar(self)
-        self.addToolBar(Qt.LeftToolBarArea, self.sideMenu)
-
+class SideMenu(QToolBar):
+    def __init__(self, parent):
+        super().__init__()
         self.horizontal_zoom = QSlider(Qt.Horizontal)
         self.horizontal_zoom.setMinimum(0)
         self.horizontal_zoom.setMaximum(2000)
@@ -413,8 +440,8 @@ class MyMainWindow(QMainWindow):
         label_h_zoom, label_v_zoom = QLabel(self), QLabel(self)
         label_h_zoom.setText("Horizontal zoom")
         label_v_zoom.setText("Vertical zoom")
-        self.sideMenu.addWidget(label_h_zoom)
-        self.sideMenu.addWidget(self.horizontal_zoom)
+        self.addWidget(label_h_zoom)
+        self.addWidget(self.horizontal_zoom)
         self.horizontal_zoom.setTickPosition(QSlider.TicksBelow)
         self.horizontal_zoom.setTickInterval(500)
         self.vertical_zoom = QSlider(Qt.Horizontal)
@@ -423,11 +450,37 @@ class MyMainWindow(QMainWindow):
         self.vertical_zoom.setValue(10)
         self.vertical_zoom.setTickPosition(QSlider.TicksBelow)
         self.vertical_zoom.setTickInterval(125)
-        self.sideMenu.addWidget(label_v_zoom)
-        self.sideMenu.addWidget(self.vertical_zoom)
+        self.addWidget(label_v_zoom)
+        self.addWidget(self.vertical_zoom)
         self.vertical_zoom.valueChanged.connect(self.change_vertical_dilation_factor)
         self.horizontal_zoom.valueChanged.connect(self.change_horizontal_dilation_factor)
+        self.events_list = EventsPanel(self)
+        label_events_panel = QLabel(self)
+        label_events_panel.setText("Events")
+        self.addWidget(label_events_panel)
+        self.addWidget(self.events_list)
 
+    def change_horizontal_dilation_factor(self):
+        global DILATION_FACTOR_DATE
+        DILATION_FACTOR_DATE = self.horizontal_zoom.value()
+        for ev_id, ev in self.parent().centralWidget().events_nodes.items():
+            ev.update_from_event()
+    
+    def change_vertical_dilation_factor(self):
+        global DILATION_FACTOR_HEIGHT
+        DILATION_FACTOR_HEIGHT = self.vertical_zoom.value()
+        for ev_id, ev in self.parent().centralWidget().events_nodes.items():
+            ev.update_from_event()
+    
+    def mousePressEvent(self, QMouseEvent):
+        print("OUI")
+
+class MyMainWindow(QMainWindow):
+    def __init__(self, central_widget):
+        super().__init__()
+        self.setCentralWidget(central_widget)
+        self.sideMenu = SideMenu(self)
+        self.addToolBar(Qt.LeftToolBarArea, self.sideMenu)
         menuBar = self.menuBar()#QMenu("Tools")
         fileMenu = menuBar.addMenu("File")
         new_button = QAction("New", self)
@@ -490,6 +543,7 @@ class MyMainWindow(QMainWindow):
                 new_node = EventNode(new_event, self.centralWidget())
                 self.centralWidget().scene.addItem(new_node)
                 self.centralWidget().recompute_size()
+                self.sideMenu.events_list.update_events()
                 new_node.show()
     
     def create_timeline(self):
@@ -530,18 +584,7 @@ class MyMainWindow(QMainWindow):
         meta_data = Session.json_load(SESSION_NAME)
         w = Window(Event.event_dict, Timeline.timeline_dict, parent=None, meta_data=meta_data)
         self.setCentralWidget(w)
-    
-    def change_horizontal_dilation_factor(self):
-        global DILATION_FACTOR_DATE
-        DILATION_FACTOR_DATE = self.horizontal_zoom.value()
-        for ev_id, ev in self.centralWidget().events_nodes.items():
-            ev.update_from_event()
-    
-    def change_vertical_dilation_factor(self):
-        global DILATION_FACTOR_HEIGHT
-        DILATION_FACTOR_HEIGHT = self.vertical_zoom.value()
-        for ev_id, ev in self.centralWidget().events_nodes.items():
-            ev.update_from_event()
+        self.sideMenu.events_list.update_events()
 
 class NodeInfoBox(SurveyDialog):
     def __init__(self, event, eventNode, parent=None):
