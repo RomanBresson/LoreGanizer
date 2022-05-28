@@ -223,6 +223,8 @@ class Connection(QGraphicsLineItem):
                     self.window.scene.removeItem(conn)
                 delete_timeline(self.timeline)
                 del self.window.timeline_connections[self.timeline]
+                global MainWindow
+                MainWindow.sideMenu.tls_list.update_tls()
     
     def mouseDoubleClickEvent(self, QMouseEvent):
         timeline = Timeline.timeline_dict[self.timeline]
@@ -401,6 +403,27 @@ class Window(QWidget):
             self.scene.setSceneRect(min_x-500, min_y-500, max_x-min_x+1000, max_y-min_y+1000)
 
 class EventListItem(QListWidgetItem):
+    def __init__(self, str_display, tl_id, parent):
+        super().__init__(str_display)
+        self.tl_id = tl_id
+
+class TimelinePanel(QListWidget):
+    def __init__(self, parent):
+        super().__init__()
+        self.setSelectionMode(0)
+        self.setWordWrap(True)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+        self.update_tls()
+    
+    def update_tls(self):
+        self.clear()
+        for tl_id, tl in Timeline.timeline_dict.items():
+            next_item = EventListItem(f'{tl_id}: {tl.name}', tl_id, parent = self)
+            next_item.setText(f"{tl_id}: {tl.name}")
+            self.addItem(next_item)
+
+class EventListItem(QListWidgetItem):
     def __init__(self, str_display, event_id, parent):
         super().__init__(str_display)
         self.event_id = event_id
@@ -459,6 +482,11 @@ class SideMenu(QToolBar):
         label_events_panel.setText("Events")
         self.addWidget(label_events_panel)
         self.addWidget(self.events_list)
+        self.tls_list = TimelinePanel(self)
+        label_tls_panel = QLabel(self)
+        label_tls_panel.setText("Timelines")
+        self.addWidget(label_tls_panel)
+        self.addWidget(self.tls_list)
 
     def change_horizontal_dilation_factor(self):
         global DILATION_FACTOR_DATE
@@ -555,6 +583,8 @@ class MyMainWindow(QMainWindow):
             if name=="":
                 new_tl.name = f'Timeline {new_tl.get_id()}'
             self.centralWidget().timeline_connections[new_tl.get_id()] = []
+            global MainWindow
+            MainWindow.sideMenu.tls_list.update_tls()
 
     def save_session(self, save_as=False):
         global SESSION_NAME
@@ -585,6 +615,7 @@ class MyMainWindow(QMainWindow):
         w = Window(Event.event_dict, Timeline.timeline_dict, parent=None, meta_data=meta_data)
         self.setCentralWidget(w)
         self.sideMenu.events_list.update_events()
+        self.sideMenu.tls_list.update_tls()
 
 class NodeInfoBox(SurveyDialog):
     def __init__(self, event, eventNode, parent=None):
