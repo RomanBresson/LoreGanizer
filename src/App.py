@@ -4,7 +4,7 @@ import os
 import Session
 from Classes import *
 
-from PyQt5.QtCore import Qt, QLineF, QPointF
+from PyQt5.QtCore import Qt, QLineF, QPointF, QPoint
 from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QKeySequence, QColor
 from PyQt5.QtWidgets import (
     QPushButton,
@@ -139,7 +139,8 @@ class EventNode(QGraphicsEllipseItem):
         contextMenu = QMenu(self.window)
         EditEv = contextMenu.addAction("Edit")
         DelEv = contextMenu.addAction("Delete")
-        action = contextMenu.exec_(mouseEvent.screenPos())
+        int_screen_pos = QPoint(int(mouseEvent.screenPos().x()), int(mouseEvent.screenPos().y()))
+        action = contextMenu.exec_(int_screen_pos)
         
         if action==EditEv:
             self.mouseDoubleClickEvent(mouseEvent)
