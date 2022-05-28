@@ -154,6 +154,7 @@ class EventNode(QGraphicsEllipseItem):
                 delete_event(self.event)
                 self.window.scene.removeItem(self)
                 global MainWindow
+                MainWindow.centralWidget().recompute_lines(self.event.timelines)
                 MainWindow.sideMenu.events_list.update_events()
 
 class Connection(QGraphicsLineItem):
@@ -432,12 +433,12 @@ class EventListItem(QListWidgetItem):
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.RightButton:
             global MainWindow
-            MainWindow.centralWidget().event_nodes[self.event_id].mousePressEvent(QMouseEvent)
-
+            MainWindow.centralWidget().events_nodes[self.event_id].mousePressEvent(QMouseEvent)
+        
     def mouseDoubleClickEvent(self, QMouseEvent):
         global MainWindow
-        MainWindow.centralWidget().event_nodes[self.event_id].mouseDoubleClickEvent(QMouseEvent)
-
+        MainWindow.centralWidget().events_nodes[self.event_id].mouseDoubleClickEvent(QMouseEvent)
+    
 class EventsPanel(QListWidget):
     def __init__(self, parent):
         super().__init__()
@@ -453,6 +454,16 @@ class EventsPanel(QListWidget):
             next_item = EventListItem(f'{ev_id}: {ev.short_description}', ev_id, parent = self)
             next_item.setText(f"{ev_id}: {ev.short_description}")
             self.addItem(next_item)
+    
+    def mouseDoubleClickEvent(self, QMouseEvent):
+        item_clicked = self.itemAt(QMouseEvent.pos())
+        if item_clicked is not None:
+            item_clicked.mouseDoubleClickEvent(QMouseEvent)
+    
+    def mousePressEvent(self, QMouseEvent):
+        item_clicked = self.itemAt(QMouseEvent.pos())
+        if item_clicked is not None:
+            item_clicked.mousePressEvent(QMouseEvent)
 
 class SideMenu(QToolBar):
     def __init__(self, parent):
@@ -502,7 +513,7 @@ class SideMenu(QToolBar):
             ev.update_from_event()
     
     def mousePressEvent(self, QMouseEvent):
-        print("OUI")
+        ...
 
 class MyMainWindow(QMainWindow):
     def __init__(self, central_widget):
