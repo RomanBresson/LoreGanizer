@@ -66,25 +66,34 @@ class EventNode(QGraphicsEllipseItem):
         self.window = window
         self.setFlag(QGraphicsItem.ItemIsMovable)
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
+        self.nameLabel = QGraphicsTextItem(self)
         self.set_name_label()
+        self.dateLabel = QGraphicsTextItem(self)
+        self.set_date_label()
         self.window.events_nodes[self.event.get_id()] = self
 
     def set_name_label(self):
-        self.nameLabel = QGraphicsTextItem(self)
         self.nameLabel.setPlainText(self.event.short_description)
         self.nameLabel.setRotation(-45)
         self.nameLabel.moveBy(-5, -15)
         self.nameLabel.setScale(1.25)
+    
+    def set_date_label(self):
+        self.dateLabel.setPlainText(str(self.event.get_date()))
+        self.dateLabel.moveBy(-5, 5)
+        self.dateLabel.setScale(1.25)
 
     def update_from_event(self):
         self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
         self.recompute_lines()
         self.window.recompute_size()
         self.set_name_label()
+        self.set_date_label()
     
     def update_event_from_self(self):
         self.event.set_date(self.x()/DILATION_FACTOR_DATE) 
         self.event.height = self.y()/DILATION_FACTOR_HEIGHT
+        self.set_date_label()
         self.recompute_lines()
            
     def mouseDoubleClickEvent(self, QMouseEvent):
