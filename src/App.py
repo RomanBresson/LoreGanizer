@@ -182,6 +182,8 @@ class MyMainWindow(QMainWindow):
             Session.json_load(SESSION_NAME)
             w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
             self.setCentralWidget(w)
+            self.sideMenu.events_list.update_events()
+            self.sideMenu.tls_list.update_tls()
 
     def create_event_button(self):
         self.create_event()
