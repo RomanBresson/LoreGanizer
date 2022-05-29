@@ -3,18 +3,16 @@ import os
 
 import Session
 from Classes import *
+from LeftMenu import *
+from global_variables import *
 
 from PyQt5.QtCore import Qt, QLineF, QPointF, QPoint
 from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QKeySequence, QColor
 from PyQt5.QtWidgets import (
     QPushButton,
-    QToolBar,
     QShortcut,
-    QLabel,
-    QSizePolicy,
     QDialogButtonBox,
     QFormLayout,
-    QSlider,
     QLineEdit,
     QMessageBox,
     QListWidgetItem,
@@ -37,16 +35,6 @@ from PyQt5.QtWidgets import (
     QMainWindow,
     QPlainTextEdit
 )
-
-NODE_DIAMETER = 10
-LINE_WIDTH = 8
-DILATION_FACTOR_DATE = 500
-DILATION_FACTOR_HEIGHT = 100
-SESSION_NAME = ""
-DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "saves")
-BG_COLOR = 'lightgray'
-NODE_DEFAULT_COLOR = 'white'
-FONT_DEFAULT_COLOR = 'black'
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):
@@ -437,140 +425,6 @@ class Window(QWidget):
             max_y = max([e.scenePos().y() for e in self.events_nodes.values()])
             min_y = min([e.scenePos().y() for e in self.events_nodes.values()])
             self.scene.setSceneRect(min_x-500, min_y-500, max_x-min_x+1000, max_y-min_y+1000)
-
-class EventListItem(QListWidgetItem):
-    def __init__(self, str_display, tl_id, parent):
-        super().__init__(str_display)
-        self.tl_id = tl_id
-
-class TimelinePanel(QListWidget):
-    def __init__(self, parent):
-        super().__init__()
-        self.setSelectionMode(0)
-        self.setWordWrap(True)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.update_tls()
-    
-    def update_tls(self):
-        self.clear()
-        for tl_id, tl in Timeline.timeline_dict.items():
-            next_item = TimelineListItem(f'{tl_id}: {tl.name}', tl_id, parent = self)
-            next_item.setText(f"{tl_id}: {tl.name}")
-            self.addItem(next_item)
-    
-    def mouseDoubleClickEvent(self, QMouseEvent):
-        item_clicked = self.itemAt(QMouseEvent.pos())
-        if item_clicked is not None:
-            item_clicked.mouseDoubleClickEvent(QMouseEvent)
-    
-    def mousePressEvent(self, QMouseEvent):
-        item_clicked = self.itemAt(QMouseEvent.pos())
-        if item_clicked is not None:
-            item_clicked.mousePressEvent(QMouseEvent)
-
-class TimelineListItem(QListWidgetItem):
-    def __init__(self, str_display, tl_id, parent):
-        super().__init__(str_display)
-        self.tl_id = tl_id
-
-    def mousePressEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.RightButton:
-            global MainWindow
-            MainWindow.centralWidget().timelines_abstracts[self.tl_id].mousePressEvent(QMouseEvent)
-        
-    def mouseDoubleClickEvent(self, QMouseEvent):
-        global MainWindow
-        MainWindow.centralWidget().timelines_abstracts[self.tl_id].mouseDoubleClickEvent(QMouseEvent)
-
-class EventListItem(QListWidgetItem):
-    def __init__(self, str_display, event_id, parent):
-        super().__init__(str_display)
-        self.event_id = event_id
-
-    def mousePressEvent(self, QMouseEvent):
-        global MainWindow
-        MainWindow.centralWidget().events_nodes[self.event_id].mousePressEvent(QMouseEvent)
-        
-    def mouseDoubleClickEvent(self, QMouseEvent):
-        global MainWindow
-        MainWindow.centralWidget().events_nodes[self.event_id].mouseDoubleClickEvent(QMouseEvent)
-    
-class EventsPanel(QListWidget):
-    def __init__(self, parent):
-        super().__init__()
-        self.setSelectionMode(0)
-        self.setWordWrap(True)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
-        self.update_events()
-    
-    def update_events(self):
-        self.clear()
-        for ev_id, ev in Event.event_dict.items():
-            next_item = EventListItem(f'{ev_id}: {ev.short_description}', ev_id, parent = self)
-            next_item.setText(f"{ev_id}: {ev.short_description}")
-            self.addItem(next_item)
-    
-    def mouseDoubleClickEvent(self, QMouseEvent):
-        item_clicked = self.itemAt(QMouseEvent.pos())
-        if item_clicked is not None:
-            item_clicked.mouseDoubleClickEvent(QMouseEvent)
-    
-    def mousePressEvent(self, QMouseEvent):
-        item_clicked = self.itemAt(QMouseEvent.pos())
-        if item_clicked is not None:
-            item_clicked.mousePressEvent(QMouseEvent)
-
-class SideMenu(QToolBar):
-    def __init__(self, parent):
-        super().__init__()
-        self.horizontal_zoom = QSlider(Qt.Horizontal)
-        self.horizontal_zoom.setMinimum(0)
-        self.horizontal_zoom.setMaximum(2000)
-        self.horizontal_zoom.setValue(500)
-        label_h_zoom, label_v_zoom = QLabel(self), QLabel(self)
-        label_h_zoom.setText("Horizontal zoom")
-        label_v_zoom.setText("Vertical zoom")
-        self.addWidget(label_h_zoom)
-        self.addWidget(self.horizontal_zoom)
-        self.horizontal_zoom.setTickPosition(QSlider.TicksBelow)
-        self.horizontal_zoom.setTickInterval(500)
-        self.vertical_zoom = QSlider(Qt.Horizontal)
-        self.vertical_zoom.setMinimum(0)
-        self.vertical_zoom.setMaximum(500)
-        self.vertical_zoom.setValue(10)
-        self.vertical_zoom.setTickPosition(QSlider.TicksBelow)
-        self.vertical_zoom.setTickInterval(125)
-        self.addWidget(label_v_zoom)
-        self.addWidget(self.vertical_zoom)
-        self.vertical_zoom.valueChanged.connect(self.change_vertical_dilation_factor)
-        self.horizontal_zoom.valueChanged.connect(self.change_horizontal_dilation_factor)
-        self.events_list = EventsPanel(self)
-        label_events_panel = QLabel(self)
-        label_events_panel.setText("Events")
-        self.addWidget(label_events_panel)
-        self.addWidget(self.events_list)
-        self.tls_list = TimelinePanel(self)
-        label_tls_panel = QLabel(self)
-        label_tls_panel.setText("Timelines")
-        self.addWidget(label_tls_panel)
-        self.addWidget(self.tls_list)
-
-    def change_horizontal_dilation_factor(self):
-        global DILATION_FACTOR_DATE
-        DILATION_FACTOR_DATE = self.horizontal_zoom.value()
-        for ev_id, ev in self.parent().centralWidget().events_nodes.items():
-            ev.update_from_event()
-    
-    def change_vertical_dilation_factor(self):
-        global DILATION_FACTOR_HEIGHT
-        DILATION_FACTOR_HEIGHT = self.vertical_zoom.value()
-        for ev_id, ev in self.parent().centralWidget().events_nodes.items():
-            ev.update_from_event()
-    
-    def mousePressEvent(self, QMouseEvent):
-        ...
 
 class MyMainWindow(QMainWindow):
     def __init__(self, central_widget):
