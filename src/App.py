@@ -280,7 +280,8 @@ class SessionLoader(QDialog):
             SESSION_NAME = self.listwidget.currentItem().text()
         self.close()
 
-#Session.json_load(SESSION_NAME)
+if not os.path.exists(DATA_PATH):
+    os.makedirs(DATA_PATH)
 
 colors_for_tl = ["white", "red", "blue", "grey", "green"]
 
