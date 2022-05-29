@@ -1,4 +1,6 @@
 from Classes import *
+from GlobalVariables import *
+from os import path
 import json
 
 def json_save(session_name, meta_data=None):
@@ -12,7 +14,7 @@ def json_save(session_name, meta_data=None):
     complete_str["meta_data"] = {}
     for k,v in meta_data.items():
         complete_str["meta_data"][k] = v
-    filepath = f'saves/{session_name}.json'
+    filepath = path.join(DATA_PATH, f'{session_name}.json')
     with open(filepath, 'w') as outfile:
         json.dump(complete_str, outfile, indent=4)
 
@@ -22,7 +24,7 @@ def json_load(session_name):
     Timeline.timeline_dict = {}
     Timeline.free_ids = []
     if session_name:
-        filepath = f'saves/{session_name}.json'
+        filepath = path.join(DATA_PATH, f'{session_name}.json')
         with open(filepath, 'r') as infile:
             json_str = json.load(infile)
             ev_json = json_str["events"]
