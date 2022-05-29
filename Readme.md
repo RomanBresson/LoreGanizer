@@ -20,10 +20,13 @@ It allows to represent events as nodes. An event has:
 
 Timelines are sets of connected events. The events are necessarily ordered (by date) in a timeline (time travel is not possible yet).
 
-![GH](https://user-images.githubusercontent.com/22815154/169899950-e9533579-c684-428c-a316-1588e5d50ad0.png)
+Note that colors are fully customizeable.
+
+![GH](https://user-images.githubusercontent.com/22815154/170842128-8d306c3a-ff92-4f17-bef9-581ceb3266cc.png)
 
 # How to use ?
 ## Install and run
+
 
 This was tested and made using Python 3.9. Using a virtualenv is recommended.
 
@@ -53,6 +56,7 @@ This opens an editor which allows you to
 * edit the date, height, and short description of the event
 * display and edit the long description by clicking on the associated button
 * select the timelines to which the event belongs
+
 
 ## Handling timelines
 
