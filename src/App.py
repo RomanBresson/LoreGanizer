@@ -208,6 +208,7 @@ class MyMainWindow(QMainWindow):
             if name=="":
                 new_tl.name = f'Timeline {new_tl.get_id()}'
             self.centralWidget().timeline_connections[new_tl.get_id()] = []
+            TimelineAbstract(new_tl.get_id(), self.centralWidget())
             global MainWindow
             MainWindow.sideMenu.tls_list.update_tls()
 
