@@ -28,6 +28,8 @@ class EventNode(QGraphicsEllipseItem):
         if event.height is None:
             if ((len(tls)>0)):
                 self.event.height = sum(tls)/len(tls)
+            else:
+                self.event.height = 0.
         self.setZValue(10)
         color = window.parent().config.NODE_DEFAULT_COLOR if (event.color=="default") else event.color
         font_color = window.parent().config.FONT_DEFAULT_COLOR if (event.font_color=="default") else event.font_color

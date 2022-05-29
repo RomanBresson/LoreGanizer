@@ -175,9 +175,9 @@ class MyMainWindow(QMainWindow):
         ret = warning_box.exec_()
         if ret==1024:
             #ok clicked
-            self.config.SESSION_NAME = ""
-            Session.json_load(self.config.SESSION_NAME)
-            w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
+            self.config = CONFIG()
+            Session.json_load(self.config.SESSION_NAME, self.config.DATA_PATH)
+            w = Window(Event.event_dict, Timeline.timeline_dict, parent=self)
             self.setCentralWidget(w)
             self.sideMenu.events_list.update_events()
             self.sideMenu.tls_list.update_tls()
