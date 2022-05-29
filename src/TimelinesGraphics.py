@@ -156,7 +156,7 @@ class TimeLineInfoBox(SurveyDialog):
         color = QColorDialog.getColor()
         if color.isValid():
             self.timeline.color = color.name()
-            self.parent().centralWidget().recompute_lines([self.timeline.get_id()])
+            self.parent().recompute_lines([self.timeline.get_id()])
 
     def getInputs(self):
         dict_ret = {}
