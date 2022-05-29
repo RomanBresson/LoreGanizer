@@ -4,7 +4,7 @@ import os
 import Session
 from Classes import *
 from LeftMenu import *
-from global_variables import *
+from GlobalVariables import *
 
 from PyQt5.QtCore import Qt, QLineF, QPointF, QPoint
 from PyQt5.QtGui import QBrush, QPainter, QPen, QDoubleValidator, QKeySequence, QColor
