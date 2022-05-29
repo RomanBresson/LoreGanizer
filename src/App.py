@@ -74,7 +74,6 @@ class EventNode(QGraphicsEllipseItem):
         self.nameLabel.setScale(1.25)
         self.set_name_label()
         self.dateLabel = QGraphicsTextItem(self)
-        self.dateLabel.moveBy(-5, 5)
         self.dateLabel.setScale(1.25)
         self.set_date_label()
         self.window.events_nodes[self.event.get_id()] = self
@@ -85,6 +84,9 @@ class EventNode(QGraphicsEllipseItem):
     
     def set_date_label(self):
         self.dateLabel.setDefaultTextColor(QColor(self.event.font_color))
+        self.dateLabel.setPos(-5, 0)
+        global LINE_WIDTH
+        self.dateLabel.moveBy(0, LINE_WIDTH*max(1,len(self.event.timelines)))
         self.dateLabel.setPlainText(str(self.event.get_date()))
 
     def update_from_event(self):
