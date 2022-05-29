@@ -1,3 +1,7 @@
+Accessibility:
 -Edit timeline style (dotted/dashed) for easier intelligibility/not relying on color only
+-change font size
+
+Misc:
 -Add time scale at the bottom
--Add right click on timelines in the panel
+-Add colors next to events to show quickly whose timelines they belong too
