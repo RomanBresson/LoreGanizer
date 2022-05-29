@@ -147,7 +147,7 @@ class MyMainWindow(QMainWindow):
         load_button = QAction("Load", self)
         load_button.triggered.connect(self.load_session)
         fileMenu.addAction(load_button)
-        close_button = QAction("Close", self)
+        close_button = QAction("Exit", self)
         close_button.triggered.connect(self.close_warning)
         fileMenu.addAction(close_button)
 
