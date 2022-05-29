@@ -94,6 +94,7 @@ class EventNode(QGraphicsEllipseItem):
                 if tl_id not in old_tl:
                     Timeline.timeline_dict[tl_id].insert_event(self.event.get_id())
         self.update_from_event()
+        self.window.parent().sideMenu.events_list.update_events()
 
     def delete_lines(self):
         for line in self.lines:

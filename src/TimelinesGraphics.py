@@ -74,6 +74,7 @@ class TimelineAbstract:
                         self.window.events_nodes[ev_id].recompute_node_size()
         self.window.recompute_lines()
         self.window.recompute_size()
+        self.window.parent().sideMenu.tls_list.update_tls()
 
 class Connection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, window, color=Qt.black):
