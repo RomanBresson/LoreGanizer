@@ -147,6 +147,9 @@ class MyMainWindow(QMainWindow):
         load_button = QAction("Load", self)
         load_button.triggered.connect(self.load_session)
         fileMenu.addAction(load_button)
+        close_button = QAction("Close", self)
+        close_button.triggered.connect(self.close_warning)
+        fileMenu.addAction(close_button)
 
         createMenu = menuBar.addMenu("Create")
         new_event = QAction("Event", self)
@@ -238,6 +241,15 @@ class MyMainWindow(QMainWindow):
         self.setCentralWidget(w)
         self.sideMenu.events_list.update_events()
         self.sideMenu.tls_list.update_tls()
+    
+    def close_warning(self):
+        warning_box = QMessageBox()
+        warning_box.setText("All unsaved progress will be lost. Proceed ?")
+        warning_box.setWindowTitle("Warning")
+        warning_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        ret = warning_box.exec_()
+        if ret==1024:
+            self.close()
 
 class SessionLoader(QDialog):
     def __init__(self, parent):
@@ -287,7 +299,7 @@ if not os.path.exists(MainWindow.config.DATA_PATH):
 MainWindow.saveSc = QShortcut(QKeySequence('Ctrl+S'), MainWindow)
 MainWindow.closeSc = QShortcut(QKeySequence('Alt+F4'), MainWindow)
 MainWindow.saveSc.activated.connect(MainWindow.save_session)
-MainWindow.closeSc.activated.connect(MainWindow.close)
+MainWindow.closeSc.activated.connect(MainWindow.close_warning)
 MainWindow.setCentralWidget(AppWindow)
 
 MainWindow.show()
