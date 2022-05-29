@@ -285,7 +285,9 @@ if not os.path.exists(MainWindow.config.DATA_PATH):
     os.makedirs(MainWindow.config.DATA_PATH)
 
 MainWindow.saveSc = QShortcut(QKeySequence('Ctrl+S'), MainWindow)
+MainWindow.closeSc = QShortcut(QKeySequence('Alt+F4'), MainWindow)
 MainWindow.saveSc.activated.connect(MainWindow.save_session)
+MainWindow.closeSc.activated.connect(MainWindow.close)
 MainWindow.setCentralWidget(AppWindow)
 
 MainWindow.show()
