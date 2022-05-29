@@ -1,6 +1,5 @@
 from Classes import *
 from LeftMenu import *
-from GlobalVariables import *
 from SurveyDialog import SurveyDialog
 
 from PyQt5.QtCore import Qt, QPoint
@@ -23,15 +22,15 @@ from PyQt5.QtWidgets import (
 
 class EventNode(QGraphicsEllipseItem):
     def __init__(self, event, window):
-        super().__init__(0, 0, NODE_DIAMETER, NODE_DIAMETER*(max(1,len(event.timelines))))
+        super().__init__(0, 0, window.parent().config.NODE_DIAMETER, window.parent().config.NODE_DIAMETER*(max(1,len(event.timelines))))
         self.event = event
         tls = event.timelines
         if event.height is None:
             if ((len(tls)>0)):
                 self.event.height = sum(tls)/len(tls)
         self.setZValue(10)
-        color = NODE_DEFAULT_COLOR if (event.color=="default") else event.color
-        font_color = FONT_DEFAULT_COLOR if (event.font_color=="default") else event.font_color
+        color = window.parent().config.NODE_DEFAULT_COLOR if (event.color=="default") else event.color
+        font_color = window.parent().config.FONT_DEFAULT_COLOR if (event.font_color=="default") else event.font_color
         brush = QBrush(QColor(color))
         self.setBrush(brush)
         pen = QPen(Qt.black)
@@ -40,7 +39,7 @@ class EventNode(QGraphicsEllipseItem):
         self.lines = []
         self.window = window
         self.setFlag(QGraphicsItem.ItemIsMovable)
-        self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
+        self.setPos(self.event.get_date()*self.window.parent().config.DILATION_FACTOR_DATE, self.event.height*self.window.parent().config.DILATION_FACTOR_HEIGHT)
         self.nameLabel = QGraphicsTextItem(self)
         self.nameLabel.setRotation(-45)
         self.nameLabel.moveBy(-5, -15)
@@ -58,20 +57,19 @@ class EventNode(QGraphicsEllipseItem):
     def set_date_label(self):
         self.dateLabel.setDefaultTextColor(QColor(self.event.font_color))
         self.dateLabel.setPos(-5, 0)
-        global LINE_WIDTH
-        self.dateLabel.moveBy(0, LINE_WIDTH*max(1,len(self.event.timelines)))
+        self.dateLabel.moveBy(0, self.window.parent().config.LINE_WIDTH*max(1,len(self.event.timelines)))
         self.dateLabel.setPlainText(str(self.event.get_date()))
 
     def update_from_event(self):
-        self.setPos(self.event.get_date()*DILATION_FACTOR_DATE, self.event.height*DILATION_FACTOR_HEIGHT)
+        self.setPos(self.event.get_date()*self.window.parent().config.DILATION_FACTOR_DATE, self.event.height*self.window.parent().config.DILATION_FACTOR_HEIGHT)
         self.recompute_lines()
         self.window.recompute_size()
         self.set_name_label()
         self.set_date_label()
     
     def update_event_from_self(self):
-        self.event.set_date(self.x()/DILATION_FACTOR_DATE) 
-        self.event.height = self.y()/DILATION_FACTOR_HEIGHT
+        self.event.set_date(self.x()/self.window.parent().config.DILATION_FACTOR_DATE) 
+        self.event.height = self.y()/self.window.parent().config.DILATION_FACTOR_HEIGHT
         self.set_date_label()
         self.recompute_lines()
            
@@ -118,7 +116,7 @@ class EventNode(QGraphicsEllipseItem):
         self.recompute_node_size()
 
     def recompute_node_size(self):
-        self.setRect(0.,0.,NODE_DIAMETER, NODE_DIAMETER*(max(1,len(self.event.timelines))))
+        self.setRect(0.,0., self.window.parent().config.NODE_DIAMETER, self.window.parent().config.NODE_DIAMETER*(max(1,len(self.event.timelines))))
 
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.RightButton:

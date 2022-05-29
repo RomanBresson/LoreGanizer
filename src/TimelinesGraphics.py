@@ -1,6 +1,5 @@
 from Classes import *
 from LeftMenu import *
-from GlobalVariables import *
 from EventNodes import *
 from SurveyDialog import SurveyDialog
 from TimelinesGraphics import *
@@ -79,6 +78,7 @@ class TimelineAbstract:
 class Connection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, window, color=Qt.black):
         super().__init__()
+        self.window = window
         self.start = start
         self.end = end
         self.timeline = tl_id
@@ -88,16 +88,15 @@ class Connection(QGraphicsLineItem):
         self.compute_shifts()
         self.setLine(self._line)
         pen = QPen(QColor(color))
-        pen.setWidth(LINE_WIDTH)
+        pen.setWidth(window.parent().config.LINE_WIDTH)
         self.setPen(pen)
-        self.window = window
         self.window.timeline_connections.setdefault(tl_id, [])
         self.window.timeline_connections[tl_id].append(self)
         
     def compute_shifts(self):
         shift_down_start = self.start.event.timelines.index(self.timeline)
         shift_down_end = self.end.event.timelines.index(self.timeline)
-        self._line = QLineF(self.start.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2+shift_down_start*LINE_WIDTH), self.end.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2 + shift_down_end*LINE_WIDTH))
+        self._line = QLineF(self.start.scenePos()+QPointF(self.window.parent().config.NODE_DIAMETER/2, self.window.parent().config.NODE_DIAMETER/2+shift_down_start*self.window.parent().config.LINE_WIDTH), self.end.scenePos()+QPointF(self.window.parent().config.NODE_DIAMETER/2, self.window.parent().config.NODE_DIAMETER/2 + shift_down_end*self.window.parent().config.LINE_WIDTH))
 
     def extremities(self):
         return self.start, self.end
@@ -117,9 +116,9 @@ class Connection(QGraphicsLineItem):
     def updateLine(self, source):
         shift_down = source.event.timelines.index(self.timeline)
         if source == self.start:
-            self._line.setP1(source.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2 + LINE_WIDTH*shift_down))
+            self._line.setP1(source.scenePos()+QPointF(self.window.parent().config.NODE_DIAMETER/2, self.window.parent().config.NODE_DIAMETER/2 + self.window.parent().config.LINE_WIDTH*shift_down))
         else:
-            self._line.setP2(source.scenePos()+QPointF(NODE_DIAMETER/2, NODE_DIAMETER/2 + LINE_WIDTH*shift_down))
+            self._line.setP2(source.scenePos()+QPointF(self.window.parent().config.NODE_DIAMETER/2, self.window.parent().config.NODE_DIAMETER/2 + self.window.parent().config.LINE_WIDTH*shift_down))
         self.setLine(self._line)
 
     def mousePressEvent(self, QMouseEvent):

@@ -1,6 +1,5 @@
 from Classes import *
 from LeftMenu import *
-from GlobalVariables import *
 
 from PyQt5.QtWidgets import (
     QDialogButtonBox,

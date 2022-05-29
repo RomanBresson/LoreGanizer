@@ -1,11 +1,13 @@
 import os
 
-NODE_DIAMETER = 10
-LINE_WIDTH = 8
-DILATION_FACTOR_DATE = 500
-DILATION_FACTOR_HEIGHT = 100
-SESSION_NAME = ""
-DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "saves")
-BG_COLOR = 'lightgray'
-NODE_DEFAULT_COLOR = 'white'
-FONT_DEFAULT_COLOR = 'black'
+class CONFIG():
+    def __init__(self):
+        self.NODE_DIAMETER = 10
+        self.LINE_WIDTH = 8
+        self.DILATION_FACTOR_DATE = 500
+        self.DILATION_FACTOR_HEIGHT = 100
+        self.SESSION_NAME = ""
+        self.DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "saves")
+        self.BG_COLOR = 'lightgray'
+        self.NODE_DEFAULT_COLOR = 'white'
+        self.FONT_DEFAULT_COLOR = 'black'

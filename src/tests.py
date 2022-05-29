@@ -1,5 +1,7 @@
+from distutils.command.config import config
 from Classes import Event, Timeline, delete_event, delete_timeline
 from Session import *
+from GlobalVariables import CONFIG
 import unittest
 
 class TestStringMethods(unittest.TestCase):
@@ -211,12 +213,12 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(event1.timelines,[0,1])
         self.assertEqual(event2.timelines,[0,1])
         self.assertEqual(event3.timelines,[0])
-        delete_timeline(timeline1)  
+        delete_timeline(timeline1.get_id())  
         self.assertEqual(event0.timelines,[0])
         self.assertEqual(event1.timelines,[0])
         self.assertEqual(event2.timelines,[0])
         self.assertEqual(event3.timelines,[0])
-        delete_timeline(timeline0)
+        delete_timeline(timeline0.get_id())
         self.assertEqual(Timeline.free_ids,[1,0])
         self.assertEqual(event0.timelines,[])
         self.assertEqual(event1.timelines,[])
@@ -233,10 +235,11 @@ class TestStringMethods(unittest.TestCase):
         event2 = Event(date=3)
         event3 = Event(date=10)
         delete_event(event2)
-        json_save("session_test")
+        conf = CONFIG()
+        json_save("session_test", conf.DATA_PATH)
         Event.event_dict = {}
         Event.free_ids = []
-        json_load("session_test")
+        json_load("session_test", conf.DATA_PATH)
         self.assertEqual(list(Event.event_dict.keys()), [0,1,3])
         self.assertEqual([ev.get_date() for ev in Event.event_dict.values()], [0,5,10])
     
@@ -254,12 +257,13 @@ class TestStringMethods(unittest.TestCase):
         timeline2 = Timeline(id_nb=5)
         Timeline.free_ids = [1,2,3,4]
         timeline3 = Timeline(events=[0,3])
-        json_save("session_test")
+        conf = CONFIG()
+        json_save("session_test", conf.DATA_PATH)
         Event.event_dict = {}
         Event.free_ids = []
         Timeline.timeline_dict = {}
         Timeline.free_ids = []
-        json_load("session_test")
+        json_load("session_test", conf.DATA_PATH)
         self.assertEqual(set(list(Timeline.timeline_dict.keys())), set([0,5,1]))
         self.assertEqual(Timeline.timeline_dict[0].events, [])
         self.assertEqual(Timeline.timeline_dict[5].events, [])

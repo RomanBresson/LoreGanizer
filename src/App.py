@@ -4,7 +4,7 @@ import os
 import Session
 from Classes import *
 from LeftMenu import SideMenu
-from GlobalVariables import *
+from GlobalVariables import CONFIG
 from EventNodes import EventNode, EventCreator
 from SurveyDialog import SurveyDialog
 from TimelinesGraphics import Connection, TimelineAbstract
@@ -33,13 +33,12 @@ from PyQt5.QtWidgets import (
 class Window(QWidget):
     def __init__(self, events_dict = None, timelines_dict = None, parent=None, meta_data=None):
         super().__init__(parent=parent)
-        global BG_COLOR
         if meta_data is not None:
             if "bg_color" in meta_data:
-                BG_COLOR = meta_data["bg_color"]
+                parent.config.BG_COLOR = meta_data["bg_color"]
             else:
-                BG_COLOR = "lightgray"
-        self.setStyleSheet(f'background-color: {BG_COLOR};')
+                parent.config.BG_COLOR = "lightgray"
+        self.setStyleSheet(f'background-color: {parent.config.BG_COLOR};')
         # Defining a scene rect of 400x200, with it's origin at 0,0.
         # If we don't set this on creation, we can set it later with .setSceneRect
         self.scene = QGraphicsScene(0, 0, 400, 100)
@@ -102,8 +101,8 @@ class Window(QWidget):
         action = contextMenu.exec_(self.mapToGlobal(mouseEvent.pos()))
         if action==newEv:
             pos = self.view.mapToScene(mouseEvent.pos())
-            date = pos.x()/DILATION_FACTOR_DATE
-            height = pos.y()/DILATION_FACTOR_HEIGHT
+            date = pos.x()/self.parent().config.DILATION_FACTOR_DATE
+            height = pos.y()/self.parent().config.DILATION_FACTOR_HEIGHT
             self.parent().create_event(date, height)
 
     def recompute_lines(self, list_of_timelines=None):
@@ -129,9 +128,9 @@ class Window(QWidget):
             self.scene.setSceneRect(min_x-500, min_y-500, max_x-min_x+1000, max_y-min_y+1000)
 
 class MyMainWindow(QMainWindow):
-    def __init__(self, central_widget):
+    def __init__(self, config):
         super().__init__()
-        self.setCentralWidget(central_widget)
+        self.config = config
         self.sideMenu = SideMenu(self)
         self.addToolBar(Qt.LeftToolBarArea, self.sideMenu)
         menuBar = self.menuBar()#QMenu("Tools")
@@ -165,12 +164,10 @@ class MyMainWindow(QMainWindow):
     def select_color(self):
         color = QColorDialog.getColor()
         if color.isValid():
-            global BG_COLOR
-            BG_COLOR = color.name()
-            self.centralWidget().setStyleSheet(f'background-color: {BG_COLOR};')
+            self.config.BG_COLOR = color.name()
+            self.centralWidget().setStyleSheet(f'background-color: {self.config.BG_COLOR};')
 
     def new_session(self):
-        global SESSION_NAME
         warning_box = QMessageBox()
         warning_box.setText("All unsaved progress will be lost. Proceed ?")
         warning_box.setWindowTitle("Warning")
@@ -178,8 +175,8 @@ class MyMainWindow(QMainWindow):
         ret = warning_box.exec_()
         if ret==1024:
             #ok clicked
-            SESSION_NAME = ""
-            Session.json_load(SESSION_NAME)
+            self.config.SESSION_NAME = ""
+            Session.json_load(self.config.SESSION_NAME)
             w = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
             self.setCentralWidget(w)
             self.sideMenu.events_list.update_events()
@@ -211,13 +208,11 @@ class MyMainWindow(QMainWindow):
                 new_tl.name = f'Timeline {new_tl.get_id()}'
             self.centralWidget().timeline_connections[new_tl.get_id()] = []
             TimelineAbstract(new_tl.get_id(), self.centralWidget())
-            global MainWindow
-            MainWindow.sideMenu.tls_list.update_tls()
+            self.sideMenu.tls_list.update_tls()
 
     def save_session(self, save_as=False):
-        global SESSION_NAME
-        new_session_name = SESSION_NAME
-        if ((SESSION_NAME=="") | save_as):
+        new_session_name = self.config.SESSION_NAME
+        if ((self.config.SESSION_NAME=="") | save_as):
             new_session_name = ""
             save_as_window = SurveyDialog(labels=["Project name"], add_bottom_button=True)
             button_clicked = 0
@@ -228,19 +223,18 @@ class MyMainWindow(QMainWindow):
                 else:
                     return
         meta_data = {}
-        meta_data["bg_color"] = BG_COLOR
-        SESSION_NAME = new_session_name
-        Session.json_save(SESSION_NAME, meta_data)
+        meta_data["bg_color"] = self.config.BG_COLOR
+        self.config.SESSION_NAME = new_session_name
+        Session.json_save(self.config.SESSION_NAME, self.config.DATA_PATH, meta_data)
 
     def save_as_session(self):
         self.save_session(save_as=True)
 
     def load_session(self):
-        global SESSION_NAME
         session_loader = SessionLoader(parent=self)
         session_loader.exec()
-        meta_data = Session.json_load(SESSION_NAME)
-        w = Window(Event.event_dict, Timeline.timeline_dict, parent=None, meta_data=meta_data)
+        meta_data = Session.json_load(self.config.SESSION_NAME, self.config.DATA_PATH)
+        w = Window(Event.event_dict, Timeline.timeline_dict, parent=self, meta_data=meta_data)
         self.setCentralWidget(w)
         self.sideMenu.events_list.update_events()
         self.sideMenu.tls_list.update_tls()
@@ -250,7 +244,7 @@ class SessionLoader(QDialog):
         super().__init__(parent=parent)
         self.setWindowTitle("Load existing session")
         #msg.setText("Select session to load")
-        available_sessions = [session.name[:-5] for session in os.scandir(DATA_PATH)]
+        available_sessions = [session.name[:-5] for session in os.scandir(parent.config.DATA_PATH)]
         self.resize(200, 300)
         self.listwidget = QListWidget(parent=self)
         self.listwidget.setWordWrap(True)
@@ -276,23 +270,23 @@ class SessionLoader(QDialog):
         ret = warning_box.exec_()
         if ret==1024:
             #ok clicked
-            global SESSION_NAME
-            SESSION_NAME = self.listwidget.currentItem().text()
+            self.parent().config.SESSION_NAME = self.listwidget.currentItem().text()
         self.close()
-
-if not os.path.exists(DATA_PATH):
-    os.makedirs(DATA_PATH)
 
 colors_for_tl = ["white", "red", "blue", "grey", "green"]
 
 app = QApplication(sys.argv)
 
-AppWindow = Window(Event.event_dict, Timeline.timeline_dict, parent=None)
+config = CONFIG()
+MainWindow = MyMainWindow(config)
+AppWindow = Window(Event.event_dict, Timeline.timeline_dict, parent=MainWindow)
 
-MainWindow = MyMainWindow(AppWindow)
+if not os.path.exists(MainWindow.config.DATA_PATH):
+    os.makedirs(MainWindow.config.DATA_PATH)
 
 MainWindow.saveSc = QShortcut(QKeySequence('Ctrl+S'), MainWindow)
 MainWindow.saveSc.activated.connect(MainWindow.save_session)
+MainWindow.setCentralWidget(AppWindow)
 
 MainWindow.show()
 

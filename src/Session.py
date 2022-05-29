@@ -1,9 +1,8 @@
 from Classes import *
-from GlobalVariables import *
 from os import path
 import json
 
-def json_save(session_name, meta_data=None):
+def json_save(session_name, DATA_PATH, meta_data=None):
     if meta_data is None:
         meta_data = {}
     for event in Event.event_dict.values():
@@ -18,7 +17,7 @@ def json_save(session_name, meta_data=None):
     with open(filepath, 'w') as outfile:
         json.dump(complete_str, outfile, indent=4)
 
-def json_load(session_name):
+def json_load(session_name, DATA_PATH):
     Event.event_dict = {}
     Event.free_ids = []
     Timeline.timeline_dict = {}

@@ -1,5 +1,6 @@
 from Classes import Event, Timeline, delete_event, delete_timeline
 from Session import *
+from GlobalVariables import CONFIG
 
 tl_names = {"A":0, "B":1, "C":2}
 
@@ -39,4 +40,5 @@ make_timelines_from_events()
 for name in tl_names:
     Timeline.timeline_dict[tl_names[name]].name = name
 
-json_save("trial_session")
+conf = CONFIG()
+json_save("trial_session", conf.DATA_PATH)
