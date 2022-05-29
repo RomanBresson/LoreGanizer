@@ -172,6 +172,64 @@ class EventNode(QGraphicsEllipseItem):
                 MainWindow.centralWidget().recompute_lines(self.event.timelines)
                 MainWindow.sideMenu.events_list.update_events()
 
+class TimelineAbstract:
+    """
+        No real graphical class, proxy for click events
+    """
+    def __init__(self, tl_id, window):
+        self.timeline = tl_id
+        self.window = window
+        self.window.timelines_abstracts[self.timeline] = self
+    
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.RightButton:
+            self.contextMenuEvent(QMouseEvent)
+    
+    def contextMenuEvent(self, mouseEvent):
+        contextMenu = QMenu()
+        EditEv = contextMenu.addAction("Edit")
+        DelEv = contextMenu.addAction("Delete")
+        int_screen_pos = QPoint(int(mouseEvent.screenPos().x()), int(mouseEvent.screenPos().y()))
+        action = contextMenu.exec_(int_screen_pos)
+        if action==EditEv:
+            self.mouseDoubleClickEvent(mouseEvent)
+        elif action==DelEv:
+            warning_box = QMessageBox()
+            warning_box.setText("Delete this timeline ?")
+            warning_box.setWindowTitle("Warning")
+            warning_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+            ret = warning_box.exec_()
+            if ret:
+                for conn in self.window.timeline_connections[self.timeline]:
+                    self.window.scene.removeItem(conn)
+                delete_timeline(self.timeline)
+                del self.window.timeline_connections[self.timeline]
+                del self.window.timelines_abstracts[self.timeline]
+                global MainWindow
+                MainWindow.sideMenu.tls_list.update_tls()
+
+    def mouseDoubleClickEvent(self, QMouseEvent):
+        timeline = Timeline.timeline_dict[self.timeline]
+        edit_event_box = TimeLineInfoBox(timeline, self.window)
+        which_button = edit_event_box.exec()
+        new_values = edit_event_box.getInputs()
+        sd_to_id = {f'{ev_id}: {ev.short_description}':ev_id for ev_id,ev in Event.event_dict.items()}
+        if which_button:
+            timeline.name = new_values["Name"]
+            if new_values["Events"]:
+                new_events = [sd_to_id[nv] for nv in new_values["Events"]]
+                old_events = timeline.events
+                for ev_id in old_events:
+                    if ev_id not in new_events:
+                        timeline.remove_event(ev_id)
+                        self.window.events_nodes[ev_id].recompute_node_size()
+                for ev_id in new_events:
+                    if ev_id not in old_events:
+                        timeline.insert_event(ev_id)
+                        self.window.events_nodes[ev_id].recompute_node_size()
+        self.window.recompute_lines()
+        self.window.recompute_size()
+
 class Connection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, window, color=Qt.black):
         super().__init__()
@@ -219,51 +277,10 @@ class Connection(QGraphicsLineItem):
         self.setLine(self._line)
 
     def mousePressEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.RightButton:
-            self.contextMenuEvent(QMouseEvent)
-
-    def contextMenuEvent(self, mouseEvent):
-        contextMenu = QMenu()
-        EditEv = contextMenu.addAction("Edit")
-        DelEv = contextMenu.addAction("Delete")
-        action = contextMenu.exec_(mouseEvent.screenPos())
-        if action==EditEv:
-            self.mouseDoubleClickEvent(mouseEvent)
-        elif action==DelEv:
-            warning_box = QMessageBox()
-            warning_box.setText("Delete this timeline ?")
-            warning_box.setWindowTitle("Warning")
-            warning_box.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-            ret = warning_box.exec_()
-            if ret:
-                for conn in self.window.timeline_connections[self.timeline]:
-                    self.window.scene.removeItem(conn)
-                delete_timeline(self.timeline)
-                del self.window.timeline_connections[self.timeline]
-                global MainWindow
-                MainWindow.sideMenu.tls_list.update_tls()
+        self.window.timelines_abstracts[self.timeline].mousePressEvent(QMouseEvent)
     
     def mouseDoubleClickEvent(self, QMouseEvent):
-        timeline = Timeline.timeline_dict[self.timeline]
-        edit_event_box = TimeLineInfoBox(timeline, self.parentWidget())
-        which_button = edit_event_box.exec()
-        new_values = edit_event_box.getInputs()
-        sd_to_id = {f'{ev_id}: {ev.short_description}':ev_id for ev_id,ev in Event.event_dict.items()}
-        if which_button:
-            timeline.name = new_values["Name"]
-            if new_values["Events"]:
-                new_events = [sd_to_id[nv] for nv in new_values["Events"]]
-                old_events = timeline.events
-                for ev_id in old_events:
-                    if ev_id not in new_events:
-                        timeline.remove_event(ev_id)
-                        self.window.events_nodes[ev_id].recompute_node_size()
-                for ev_id in new_events:
-                    if ev_id not in old_events:
-                        timeline.insert_event(ev_id)
-                        self.window.events_nodes[ev_id].recompute_node_size()
-        self.window.recompute_lines()
-        self.window.recompute_size()
+        self.window.timelines_abstracts[self.timeline].mouseDoubleClickEvent(QMouseEvent)
 
 class SurveyDialog(QDialog):
     def __init__(self, labels, parent=None, add_bottom_button=False):
@@ -333,7 +350,6 @@ class Window(QWidget):
             else:
                 BG_COLOR = "lightgray"
         self.setStyleSheet(f'background-color: {BG_COLOR};')
-        self.timeline_connections = {}
         # Defining a scene rect of 400x200, with it's origin at 0,0.
         # If we don't set this on creation, we can set it later with .setSceneRect
         self.scene = QGraphicsScene(0, 0, 400, 100)
@@ -343,6 +359,8 @@ class Window(QWidget):
             timelines_dict = {}
 
         self.events_nodes = {}
+        self.timeline_connections = {}
+        self.timelines_abstracts = {}
 
         for event_id, event in events_dict.items():
             event_node = EventNode(event, self)
@@ -352,6 +370,7 @@ class Window(QWidget):
         self.colors = ["#bf0000", "#00bf00", "#0000bf", "#bfbf00", "#bf00bf", "#00bfbf"]
         
         for timeline_id, timeline in timelines_dict.items():
+            timeline_abstract = TimelineAbstract(timeline_id, self)
             self.timeline_connections[timeline_id] = []
             if timeline.color is None:
                 timeline.color = self.colors[timeline.get_id()%len(self.colors)]
@@ -436,9 +455,33 @@ class TimelinePanel(QListWidget):
     def update_tls(self):
         self.clear()
         for tl_id, tl in Timeline.timeline_dict.items():
-            next_item = EventListItem(f'{tl_id}: {tl.name}', tl_id, parent = self)
+            next_item = TimelineListItem(f'{tl_id}: {tl.name}', tl_id, parent = self)
             next_item.setText(f"{tl_id}: {tl.name}")
             self.addItem(next_item)
+    
+    def mouseDoubleClickEvent(self, QMouseEvent):
+        item_clicked = self.itemAt(QMouseEvent.pos())
+        if item_clicked is not None:
+            item_clicked.mouseDoubleClickEvent(QMouseEvent)
+    
+    def mousePressEvent(self, QMouseEvent):
+        item_clicked = self.itemAt(QMouseEvent.pos())
+        if item_clicked is not None:
+            item_clicked.mousePressEvent(QMouseEvent)
+
+class TimelineListItem(QListWidgetItem):
+    def __init__(self, str_display, tl_id, parent):
+        super().__init__(str_display)
+        self.tl_id = tl_id
+
+    def mousePressEvent(self, QMouseEvent):
+        if QMouseEvent.button() == Qt.RightButton:
+            global MainWindow
+            MainWindow.centralWidget().timelines_abstracts[self.tl_id].mousePressEvent(QMouseEvent)
+        
+    def mouseDoubleClickEvent(self, QMouseEvent):
+        global MainWindow
+        MainWindow.centralWidget().timelines_abstracts[self.tl_id].mouseDoubleClickEvent(QMouseEvent)
 
 class EventListItem(QListWidgetItem):
     def __init__(self, str_display, event_id, parent):
@@ -446,9 +489,8 @@ class EventListItem(QListWidgetItem):
         self.event_id = event_id
 
     def mousePressEvent(self, QMouseEvent):
-        if QMouseEvent.button() == Qt.RightButton:
-            global MainWindow
-            MainWindow.centralWidget().events_nodes[self.event_id].mousePressEvent(QMouseEvent)
+        global MainWindow
+        MainWindow.centralWidget().events_nodes[self.event_id].mousePressEvent(QMouseEvent)
         
     def mouseDoubleClickEvent(self, QMouseEvent):
         global MainWindow
