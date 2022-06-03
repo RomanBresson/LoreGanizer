@@ -7,7 +7,7 @@ from LeftMenu import SideMenu
 from GlobalVariables import CONFIG
 from EventNodes import EventNode, EventCreator
 from SurveyDialog import SurveyDialog
-from TimelinesGraphics import AbstractConnection, LineConnection, AbstractConnectionSimpleLine, TimelineAbstract
+from TimelinesGraphics import AbstractConnectionMetroLine, AbstractConnectionSimpleLine, TimelineAbstract
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QKeySequence

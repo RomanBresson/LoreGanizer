@@ -89,15 +89,20 @@ class AbstractConnection():
     
     def add_to_scene(self, scene):
         for line in self.lines:
-            scene.addItem(line)
+            self.window.scene.addItem(line)
     
     def remove_from_scene(self, scene):
         for line in self.lines:
-            scene.removeItem(line)
+            self.window.scene.removeItem(line)
+            self.lines = []
     
     def updateLines(self, source):
         for line in self.lines:
             line.updateLine(source)
+
+    def paint(self):
+        for lin in self.lines:
+            lin.paint()
 
 class AbstractConnectionSimpleLine(AbstractConnection):
     """
@@ -156,6 +161,57 @@ class LineConnection(QGraphicsLineItem):
     def mousePressEvent(self, QMouseEvent):
         self.window.timelines_abstracts[self.timeline].mousePressEvent(QMouseEvent)
     
+    def mouseDoubleClickEvent(self, QMouseEvent):
+        self.window.timelines_abstracts[self.timeline].mouseDoubleClickEvent(QMouseEvent)
+
+class AbstractConnectionMetroLine(AbstractConnection):
+    """
+        Implements a horizontal, diagonal, then horizontal line
+    """
+    def __init__(self, start, end, tl_id, window, color=Qt.black):
+        super().__init__(start, end, tl_id, window, color)
+        self.points_limits = self.compute_points_limits()
+        self.compute_shifts()
+        self.pen = QPen(QColor(color))
+        self.pen.setWidth(window.parent().config.LINE_WIDTH)
+        self.compute_parts()
+
+    def compute_parts(self):
+        x1, y1 = self.points_limits[0].x(), self.points_limits[0].y()
+        x2, y2 = self.points_limits[1].x(), self.points_limits[1].y()
+        breakpoint1 = QPointF(x1+(x2-x1)/3, y1)
+        breakpoint2 = QPointF(x2-(x2-x1)/3, y2)
+        self.firstpart = QGraphicsLineItem()
+        self.firstpart.setLine(QLineF(self.points_limits[0], breakpoint1))
+        self.middlepart = QGraphicsLineItem()
+        self.middlepart.setLine(QLineF(breakpoint1, breakpoint2))
+        self.lastpart = QGraphicsLineItem()
+        self.lastpart.setLine(QLineF(breakpoint2, self.points_limits[1]))
+        self.lines = [self.firstpart, self.middlepart, self.lastpart]
+        for lin in self.lines:
+            lin.setZValue(0)
+            lin.setPen(self.pen)
+
+    def compute_shifts(self):
+        shift_down_start = self.start.event.timelines.index(self.timeline)
+        shift_down_end = self.end.event.timelines.index(self.timeline)
+        return(shift_down_start, shift_down_end)
+
+    def compute_points_limits(self):
+        shift_down_start, shift_down_end = self.compute_shifts()
+        return(self.start.scenePos()+QPointF(self.window.parent().config.NODE_DIAMETER/2, self.window.parent().config.NODE_DIAMETER/2+shift_down_start*self.window.parent().config.LINE_WIDTH), self.end.scenePos()+QPointF(self.window.parent().config.NODE_DIAMETER/2, self.window.parent().config.NODE_DIAMETER/2 + shift_down_end*self.window.parent().config.LINE_WIDTH))
+
+    def extremities(self):
+        return self.start, self.end
+
+    def updateLines(self, source):
+        self.compute_shifts()
+        self.compute_points_limits()
+        self.compute_parts()
+
+    def mousePressEvent(self, QMouseEvent):
+        self.window.timelines_abstracts[self.timeline].mousePressEvent(QMouseEvent)
+
     def mouseDoubleClickEvent(self, QMouseEvent):
         self.window.timelines_abstracts[self.timeline].mouseDoubleClickEvent(QMouseEvent)
 
