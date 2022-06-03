@@ -90,9 +90,9 @@ class SideMenu(QToolBar):
     def __init__(self, parent):
         super().__init__()
         self.horizontal_zoom = QSlider(Qt.Horizontal)
-        self.horizontal_zoom.setMinimum(0)
-        self.horizontal_zoom.setMaximum(2000)
-        self.horizontal_zoom.setValue(500)
+        self.horizontal_zoom.setMinimum(1)
+        self.horizontal_zoom.setMaximum(1000)
+        self.horizontal_zoom.setValue(230)
         label_h_zoom, label_v_zoom = QLabel(self), QLabel(self)
         label_h_zoom.setText("Horizontal zoom")
         label_v_zoom.setText("Vertical zoom")
@@ -122,7 +122,7 @@ class SideMenu(QToolBar):
         self.addWidget(self.tls_list)
 
     def change_horizontal_dilation_factor(self):
-        self.parent().config.DILATION_FACTOR_DATE = self.horizontal_zoom.value()
+        self.parent().config.DILATION_FACTOR_DATE = (self.horizontal_zoom.value()/10)**2
         for ev_id, ev in self.parent().centralWidget().events_nodes.items():
             ev.update_from_event()
     
