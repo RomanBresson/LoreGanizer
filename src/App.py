@@ -7,7 +7,7 @@ from LeftMenu import SideMenu
 from GlobalVariables import CONFIG
 from EventNodes import EventNode, EventCreator
 from SurveyDialog import SurveyDialog
-from TimelinesGraphics import Connection, TimelineAbstract
+from TimelinesGraphics import AbstractConnection, LineConnection, AbstractConnectionSimpleLine, TimelineAbstract
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPainter, QKeySequence
@@ -110,12 +110,12 @@ class Window(QWidget):
             list_of_timelines = Timeline.timeline_dict.keys()
         for tl_id,timeline in Timeline.timeline_dict.items():
             for conn in self.timeline_connections[tl_id]:
-                self.scene.removeItem(conn)
+                conn.remove_from_scene(self.scene)
             self.timeline_connections[tl_id] = []
             if (len(timeline.events)>1):
                 for e1,e2 in zip(timeline.events[:-1], timeline.events[1:]):
-                    connection = Connection(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=timeline.color, window=self)
-                    self.scene.addItem(connection)
+                    connection = AbstractConnectionSimpleLine(self.events_nodes[e1], self.events_nodes[e2], tl_id = tl_id, color=timeline.color, window=self)
+                    connection.add_to_scene(self.scene)
                     self.events_nodes[e1].lines.append(connection)
                     self.events_nodes[e2].lines.append(connection)
 

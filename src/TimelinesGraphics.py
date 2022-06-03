@@ -46,7 +46,7 @@ class TimelineAbstract:
             ret = warning_box.exec_()
             if ret:
                 for conn in self.window.timeline_connections[self.timeline]:
-                    self.window.scene.removeItem(conn)
+                    conn.remove_from_scene(self.window.scene)
                 delete_timeline(self.timeline)
                 del self.window.timeline_connections[self.timeline]
                 del self.window.timelines_abstracts[self.timeline]
@@ -75,7 +75,43 @@ class TimelineAbstract:
         self.window.recompute_size()
         self.window.parent().sideMenu.tls_list.update_tls()
 
-class Connection(QGraphicsLineItem):
+class AbstractConnection():
+    """
+        An interface for any graphics version of lines
+    """
+    def __init__(self, start, end, tl_id, window, color=Qt.black):
+        self.window = window
+        self.start = start
+        self.end = end
+        self.timeline = tl_id
+        self.color = color
+        self.lines = []
+    
+    def add_to_scene(self, scene):
+        for line in self.lines:
+            scene.addItem(line)
+    
+    def remove_from_scene(self, scene):
+        for line in self.lines:
+            scene.removeItem(line)
+    
+    def updateLines(self, source):
+        for line in self.lines:
+            line.updateLine(source)
+
+class AbstractConnectionSimpleLine(AbstractConnection):
+    """
+        Implements a simple line
+    """
+    def __init__(self, start, end, tl_id, window, color=Qt.black):
+        super().__init__(start, end, tl_id, window, color)
+        start.lines.append(self)
+        end.lines.append(self)
+        self.window.timeline_connections.setdefault(tl_id, [])
+        self.window.timeline_connections[tl_id].append(self)
+        self.lines = [LineConnection(self.start, self.end, self.timeline, self.window, color)]
+
+class LineConnection(QGraphicsLineItem):
     def __init__(self, start, end, tl_id, window, color=Qt.black):
         super().__init__()
         self.window = window
@@ -83,15 +119,11 @@ class Connection(QGraphicsLineItem):
         self.end = end
         self.timeline = tl_id
         self.setZValue(0)
-        start.lines.append(self)
-        end.lines.append(self)
         self.compute_shifts()
         self.setLine(self._line)
         pen = QPen(QColor(color))
         pen.setWidth(window.parent().config.LINE_WIDTH)
         self.setPen(pen)
-        self.window.timeline_connections.setdefault(tl_id, [])
-        self.window.timeline_connections[tl_id].append(self)
 
     def compute_shifts(self):
         shift_down_start = self.start.event.timelines.index(self.timeline)

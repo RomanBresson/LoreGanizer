@@ -105,7 +105,7 @@ class EventNode(QGraphicsEllipseItem):
         additional_timelines = set()
         for line in self.lines:
             if line.timeline in self.event.timelines:
-                line.updateLine(self)
+                line.updateLines(self)
             else:
                 additional_timelines.add(line.timeline)
         self.update_event_from_self()

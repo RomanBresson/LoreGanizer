@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (
     QDialogButtonBox,
     QFormLayout,
     QLineEdit,
-    QDialog,
+    QDialog
 )
 
 class SurveyDialog(QDialog):
