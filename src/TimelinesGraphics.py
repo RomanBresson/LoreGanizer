@@ -92,7 +92,7 @@ class Connection(QGraphicsLineItem):
         self.setPen(pen)
         self.window.timeline_connections.setdefault(tl_id, [])
         self.window.timeline_connections[tl_id].append(self)
-        
+
     def compute_shifts(self):
         shift_down_start = self.start.event.timelines.index(self.timeline)
         shift_down_end = self.end.event.timelines.index(self.timeline)

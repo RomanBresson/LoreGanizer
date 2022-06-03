@@ -130,6 +130,7 @@ class Window(QWidget):
 class MyMainWindow(QMainWindow):
     def __init__(self, config):
         super().__init__()
+        self.setContextMenuPolicy(Qt.NoContextMenu)
         self.config = config
         self.sideMenu = SideMenu(self)
         self.addToolBar(Qt.LeftToolBarArea, self.sideMenu)

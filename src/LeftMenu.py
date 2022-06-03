@@ -130,6 +130,3 @@ class SideMenu(QToolBar):
         self.parent().config.DILATION_FACTOR_HEIGHT = self.vertical_zoom.value()
         for ev_id, ev in self.parent().centralWidget().events_nodes.items():
             ev.update_from_event()
-    
-    def mousePressEvent(self, QMouseEvent):
-        ...
