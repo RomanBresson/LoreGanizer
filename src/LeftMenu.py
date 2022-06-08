@@ -59,9 +59,12 @@ class EventsPanel(QListWidget):
     
     def update_events(self):
         self.clear()
-        for ev_id, ev in Event.event_dict.items():
-            next_item = EventListItem(f'{ev_id}: {ev.short_description}', ev_id, parent_list=self)
-            next_item.setText(f"{ev_id}: {ev.short_description}")
+        list_of_events = list(Event.event_dict.values())
+        list_of_events.sort(key=lambda ev: ev.get_date())
+        for ev in list_of_events:
+            ev_id = ev.get_id()
+            next_item = EventListItem(f'{ev_id}: {ev.short_description} ({round(ev.get_date(), 3)})', ev_id, parent_list=self)
+            next_item.setText(f'{ev_id}: {ev.short_description} ({round(ev.get_date(), 3)})')
             self.addItem(next_item)
     
     def mouseDoubleClickEvent(self, QMouseEvent):
