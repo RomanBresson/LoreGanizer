@@ -2,8 +2,8 @@ from Classes import *
 from LeftMenu import *
 from SurveyDialog import SurveyDialog
 
-from PyQt5.QtCore import Qt, QPoint
-from PyQt5.QtGui import QBrush, QPen, QDoubleValidator, QColor
+from PyQt5.QtCore import Qt, QPoint, QRegularExpression
+from PyQt5.QtGui import QBrush, QPen, QColor, QRegularExpressionValidator
 from PyQt5.QtWidgets import (
     QPushButton,
     QMessageBox,
@@ -60,7 +60,7 @@ class EventNode(QGraphicsEllipseItem):
         self.dateLabel.setDefaultTextColor(QColor(self.event.font_color))
         self.dateLabel.setPos(-5, 0)
         self.dateLabel.moveBy(0, self.window.parent().config.LINE_WIDTH*max(1,len(self.event.timelines)))
-        self.dateLabel.setPlainText(str(self.event.get_date()))
+        self.dateLabel.setPlainText(str(round(self.event.get_date(),3)))
 
     def update_from_event(self):
         self.setPos(self.event.get_date()*self.window.parent().config.DILATION_FACTOR_DATE, self.event.height*self.window.parent().config.DILATION_FACTOR_HEIGHT)
@@ -156,6 +156,11 @@ class NodeInfoBox(SurveyDialog):
         self.inputs["Short Description"].setText(event.short_description)
         self.inputs["Date"].setText(str(event.get_date()))
         self.inputs["Height"].setText(str(event.height))
+        regexp_double = QRegularExpression("[0-9]*(\.[0-9]*)?")
+        onlyDouble = QRegularExpressionValidator(regexp_double)
+        self.inputs["Date"].setValidator(onlyDouble)
+        self.inputs["Height"].setValidator(onlyDouble)
+        self.inputs["Short Description"].setMaxLength(Event.SHORT_DESC_MAX_LENGTH)
         self.LongDescButton = QPushButton(self)
         self.layout.addRow("Long Description", self.LongDescButton)
         self.LongDescButton.setText("Click to edit")
@@ -223,7 +228,8 @@ class EventCreator(SurveyDialog):
     def __init__(self, parent=None, date=None, height=None):
         super().__init__(labels= ["Date", "Height", "Short Description"], parent=parent)
         self.setWindowTitle("New event")
-        onlyDouble = QDoubleValidator()
+        regexp_double = QRegularExpression("[0-9]*(\.[0-9]*)?")
+        onlyDouble = QRegularExpressionValidator(regexp_double)
         self.inputs["Date"].setValidator(onlyDouble)
         self.inputs["Height"].setValidator(onlyDouble)
         self.inputs["Short Description"].setMaxLength(Event.SHORT_DESC_MAX_LENGTH)
