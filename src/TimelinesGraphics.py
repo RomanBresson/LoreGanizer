@@ -235,8 +235,8 @@ class TimeLineInfoBox(SurveyDialog):
         list_of_events.sort(key=lambda ev: ev.get_date())
         for ev in list_of_events:
             ev_id = ev.get_id()
-            next_item = QListWidgetItem(f'{ev_id}: {ev.short_description} ({round(ev.get_date(), 3)})', parent = self.inputs["Events"])
-            next_item.setText(f"{ev_id}: {ev.short_description} ({round(ev.get_date(), 3)})")
+            next_item = QListWidgetItem(ev.string_form(), parent = self.inputs["Events"])
+            next_item.setText(ev.string_form())
             if ev_id in timeline.events:
                 next_item.setSelected(True)
             self.inputs["Events"].addItem(next_item)

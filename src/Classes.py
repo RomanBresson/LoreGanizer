@@ -56,6 +56,9 @@ class Event:
         for timeline in self.timelines:
             Timeline.timeline_dict[timeline].update()
 
+    def string_form(self):
+        return(f'{self.get_id()}: {self.short_description} ({round(self.get_date(), 3)})')
+
 class Timeline:
     """
         A timeline is uniquely defined by its Id.
