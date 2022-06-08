@@ -62,7 +62,7 @@ class TimelineAbstract:
             timeline.name = new_values["Name"]
             if new_values["Events"]:
                 new_events = [sd_to_id[nv] for nv in new_values["Events"]]
-                old_events = timeline.events
+                old_events = [ev for ev in timeline.events]
                 for ev_id in old_events:
                     if ev_id not in new_events:
                         timeline.remove_event(ev_id)
