@@ -57,7 +57,7 @@ class TimelineAbstract:
         edit_event_box = TimeLineInfoBox(timeline, self.window)
         which_button = edit_event_box.exec()
         new_values = edit_event_box.getInputs()
-        sd_to_id = {f'{ev_id}: {ev.short_description}':ev_id for ev_id,ev in Event.event_dict.items()}
+        sd_to_id = {f'{ev_id}: {ev.short_description} ({round(ev.get_date(), 3)})':ev_id for ev_id,ev in Event.event_dict.items()}
         if which_button:
             timeline.name = new_values["Name"]
             if new_values["Events"]:
@@ -231,9 +231,12 @@ class TimeLineInfoBox(SurveyDialog):
         self.inputs["Events"].setWordWrap(True)
         self.inputs["Events"].setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.inputs["Events"].setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
-        for ev_id, ev in Event.event_dict.items():
-            next_item = QListWidgetItem(f'{ev_id}: {ev.short_description}', parent = self.inputs["Events"])
-            next_item.setText(f"{ev_id}: {ev.short_description}")
+        list_of_events = list(Event.event_dict.values())
+        list_of_events.sort(key=lambda ev: ev.get_date())
+        for ev in list_of_events:
+            ev_id = ev.get_id()
+            next_item = QListWidgetItem(f'{ev_id}: {ev.short_description} ({round(ev.get_date(), 3)})', parent = self.inputs["Events"])
+            next_item.setText(f"{ev_id}: {ev.short_description} ({round(ev.get_date(), 3)})")
             if ev_id in timeline.events:
                 next_item.setSelected(True)
             self.inputs["Events"].addItem(next_item)
