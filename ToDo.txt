@@ -5,3 +5,6 @@ Accessibility:
 Misc:
 -Add time scale at the bottom
 -Add colors next to events to show quickly whose timelines they belong too
+-Add local dilation for timeline with highly non-uniform event distributions
+-Be able to select and shift (date/height) a set of events at the same time
+-Zoom with mouse-wheel (one for date, one for height)
