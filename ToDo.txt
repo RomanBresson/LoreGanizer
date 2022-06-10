@@ -8,3 +8,4 @@ Misc:
 -Add local dilation for timeline with highly non-uniform event distributions
 -Be able to select and shift (date/height) a set of events at the same time
 -Zoom with mouse-wheel (one for date, one for height)
+-Remove event Id in string when displaying (in left panel and selection panel for timelines)
