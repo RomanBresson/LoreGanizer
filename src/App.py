@@ -50,6 +50,8 @@ class Window(QWidget):
         self.events_nodes = {}
         self.timeline_connections = {}
         self.timelines_abstracts = {}
+        self.zoom_zones = {} #contains the intervals where zoom is not the default one
+        self.intersection_free_zoom_zones = {"neg":{}, "pos":{}} #contains the more explicit zoom zones for non-negative and non-positive parts of the axis
 
         for event_id, event in events_dict.items():
             event_node = EventNode(event, self)
