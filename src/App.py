@@ -208,15 +208,16 @@ class MyMainWindow(QMainWindow):
     def create_timeline(self):
         editor = SurveyDialog(["Name"], parent=self, add_bottom_button=True)
         editor.setWindowTitle("New timeline")
-        editor.exec()
-        name = editor.getInputs()[0]
-        if name is not None:
-            new_tl = Timeline(name=name)
-            if name=="":
-                new_tl.name = f'Timeline {new_tl.get_id()}'
-            self.centralWidget().timeline_connections[new_tl.get_id()] = []
-            TimelineAbstract(new_tl.get_id(), self.centralWidget())
-            self.sideMenu.tls_list.update_tls()
+        button_clicked = editor.exec()
+        if button_clicked:
+            name = editor.getInputs()[0]
+            if name is not None:
+                new_tl = Timeline(name=name)
+                if name=="":
+                    new_tl.name = f'Timeline {new_tl.get_id()}'
+                self.centralWidget().timeline_connections[new_tl.get_id()] = []
+                TimelineAbstract(new_tl.get_id(), self.centralWidget())
+                self.sideMenu.tls_list.update_tls()
 
     def save_session(self, save_as=False):
         new_session_name = self.config.SESSION_NAME
