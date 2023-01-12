@@ -122,7 +122,13 @@ class EventNode(QGraphicsEllipseItem):
 
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.RightButton:
+            self.update_event_from_self()
+            pen = QPen(Qt.black)
+            pen.setWidth(3)
+            self.setPen(pen)
             self.contextMenuEvent(QMouseEvent)
+            pen.setWidth(1)
+            self.setPen(pen)
 
     def contextMenuEvent(self, mouseEvent):
         contextMenu = QMenu(self.window)
