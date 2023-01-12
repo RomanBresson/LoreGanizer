@@ -132,6 +132,7 @@ class Window(QWidget):
 class MyMainWindow(QMainWindow):
     def __init__(self, config):
         super().__init__()
+        self.setWindowTitle("LoreGanizer")
         self.setContextMenuPolicy(Qt.NoContextMenu)
         self.config = config
         self.sideMenu = SideMenu(self)
