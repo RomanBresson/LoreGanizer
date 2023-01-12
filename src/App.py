@@ -207,6 +207,7 @@ class MyMainWindow(QMainWindow):
     
     def create_timeline(self):
         editor = SurveyDialog(["Name"], parent=self, add_bottom_button=True)
+        editor.setWindowTitle("New timeline")
         editor.exec()
         name = editor.getInputs()[0]
         if name is not None:
