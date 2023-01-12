@@ -25,12 +25,25 @@ class TimelineAbstract:
         self.timeline = tl_id
         self.window = window
         self.window.timelines_abstracts[self.timeline] = self
-    
+
+    def setSelected(self):
+        connections = self.window.timeline_connections[self.timeline]
+        for conn in connections:
+            for line in conn.lines:
+                line.setSelected()
+
+    def unsetSelected(self):
+        connections = self.window.timeline_connections[self.timeline]
+        for conn in connections:
+            for line in conn.lines:
+                line.unsetSelected()
+
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.RightButton:
             self.contextMenuEvent(QMouseEvent)
     
     def contextMenuEvent(self, mouseEvent):
+        self.setSelected()
         contextMenu = QMenu()
         EditEv = contextMenu.addAction("Edit")
         DelEv = contextMenu.addAction("Delete")
@@ -51,9 +64,11 @@ class TimelineAbstract:
                 del self.window.timeline_connections[self.timeline]
                 del self.window.timelines_abstracts[self.timeline]
                 self.window.parent().sideMenu.tls_list.update_tls()
+        self.unsetSelected()
 
     def mouseDoubleClickEvent(self, QMouseEvent):
         timeline = Timeline.timeline_dict[self.timeline]
+        self.setSelected()
         edit_event_box = TimeLineInfoBox(timeline, self.window)
         which_button = edit_event_box.exec()
         new_values = edit_event_box.getInputs()
@@ -127,7 +142,18 @@ class LineConnection(QGraphicsLineItem):
         self.compute_shifts()
         self.setLine(self._line)
         pen = QPen(QColor(color))
+        self.color = color
         pen.setWidth(window.parent().config.LINE_WIDTH)
+        self.setPen(pen)
+    
+    def setSelected(self):
+        pen = QPen(QColor(self.color))
+        pen.setWidth(self.window.parent().config.LINE_WIDTH*1.5)
+        self.setPen(pen)
+
+    def unsetSelected(self):
+        pen = QPen(QColor(self.color))
+        pen.setWidth(self.window.parent().config.LINE_WIDTH)
         self.setPen(pen)
 
     def compute_shifts(self):
