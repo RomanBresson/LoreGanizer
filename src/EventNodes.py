@@ -76,6 +76,7 @@ class EventNode(QGraphicsEllipseItem):
         self.recompute_lines()
            
     def mouseDoubleClickEvent(self, QMouseEvent):
+        self.setSelected()
         edit_event_box = NodeInfoBox(self.event, self, self.parentWidget())
         which_button = edit_event_box.exec()
         new_values = edit_event_box.getInputs()
@@ -94,7 +95,18 @@ class EventNode(QGraphicsEllipseItem):
                 if tl_id not in old_tl:
                     Timeline.timeline_dict[tl_id].insert_event(self.event.get_id())
         self.update_from_event()
+        self.unsetSelected()
         self.window.parent().sideMenu.events_list.update_events()
+
+    def setSelected(self):
+        pen = QPen(Qt.black)
+        pen.setWidth(3)
+        self.setPen(pen)
+
+    def unsetSelected(self):
+        pen = QPen(Qt.black)
+        pen.setWidth(1)
+        self.setPen(pen)
 
     def delete_lines(self):
         for line in self.lines:
@@ -111,6 +123,7 @@ class EventNode(QGraphicsEllipseItem):
         self.update_event_from_self()
         self.recompute_lines()
         self.window.recompute_size()
+        self.unsetSelected()
         return super().mouseReleaseEvent(change)
     
     def recompute_lines(self):
@@ -122,13 +135,10 @@ class EventNode(QGraphicsEllipseItem):
 
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == Qt.RightButton:
+            self.setSelected()
             self.update_event_from_self()
-            pen = QPen(Qt.black)
-            pen.setWidth(3)
-            self.setPen(pen)
             self.contextMenuEvent(QMouseEvent)
-            pen.setWidth(1)
-            self.setPen(pen)
+            self.unsetSelected()
 
     def contextMenuEvent(self, mouseEvent):
         contextMenu = QMenu(self.window)
