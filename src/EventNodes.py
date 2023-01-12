@@ -177,10 +177,10 @@ class NodeInfoBox(SurveyDialog):
         self.inputs["Date"].setValidator(onlyDouble)
         self.inputs["Height"].setValidator(onlyDouble)
         self.inputs["Short Description"].setMaxLength(Event.SHORT_DESC_MAX_LENGTH)
-        self.LongDescButton = QPushButton(self)
-        self.layout.addRow("Long Description", self.LongDescButton)
-        self.LongDescButton.setText("Click to edit")
-        self.LongDescButton.clicked.connect(self.edit_long_description)
+        self.LongDescZone = QPlainTextEdit(self)
+        self.LongDescZone.setPlainText(self.pending_long_description)
+        self.layout.addRow("Long Description", self.LongDescZone)
+        self.inputs["Long Description"] = self.LongDescZone
         self.inputs["Color"] = QPushButton(self)
         self.layout.addRow("Color", self.inputs["Color"])
         self.inputs["Color"].setText("Click to edit")
@@ -220,25 +220,11 @@ class NodeInfoBox(SurveyDialog):
     def getInputs(self):
         dict_ret = {}
         dict_ret["Short Description"] = self.inputs["Short Description"].text()
-        dict_ret["Long Description"] = self.pending_long_description
+        dict_ret["Long Description"] = self.inputs["Long Description"].toPlainText()
         dict_ret["Date"] = float(self.inputs["Date"].text())
         dict_ret["Height"] = float(self.inputs["Height"].text())
         dict_ret["Timelines"] = [s.text() for s in self.inputs["Timelines"].selectedItems()]
         return(dict_ret)
-    
-    def edit_long_description(self):
-        long_desc_editor = QDialog(parent=self.parent())
-        long_desc_editor.textBox = QPlainTextEdit(long_desc_editor)
-        long_desc_editor.textBox.setPlainText(self.pending_long_description)
-        #long_desc_editor.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        long_desc_editor.resize(500, 500)
-        long_desc_editor.textBox.resize(490, 490)
-        long_desc_editor.textBox.move(5, 5)
-        long_desc_editor.textBox.verticalScrollBar()
-        long_desc_editor.layout = QVBoxLayout()
-        long_desc_editor.layout.addWidget(long_desc_editor.textBox)
-        long_desc = long_desc_editor.exec()
-        self.pending_long_description = long_desc_editor.textBox.toPlainText()
 
 class EventCreator(SurveyDialog):
     def __init__(self, parent=None, date=None, height=None):
