@@ -57,7 +57,7 @@ class Event:
             Timeline.timeline_dict[timeline].update()
 
     def string_form(self):
-        return(f'{self.get_id()}: {self.short_description} ({round(self.get_date(), 3)})')
+        return(f'{self.short_description} ({round(self.get_date(), 3)})')
 
 class Timeline:
     """

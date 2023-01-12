@@ -72,7 +72,7 @@ class TimelineAbstract:
         edit_event_box = TimeLineInfoBox(timeline, self.window)
         which_button = edit_event_box.exec()
         new_values = edit_event_box.getInputs()
-        sd_to_id = {f'{ev_id}: {ev.short_description} ({round(ev.get_date(), 3)})':ev_id for ev_id,ev in Event.event_dict.items()}
+        sd_to_id = {ev.string_form():ev_id for ev_id,ev in Event.event_dict.items()}
         if which_button:
             timeline.name = new_values["Name"]
             if new_values["Events"]:
