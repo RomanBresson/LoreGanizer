@@ -148,7 +148,7 @@ class LineConnection(QGraphicsLineItem):
     
     def setSelected(self):
         pen = QPen(QColor(self.color))
-        pen.setWidth(self.window.parent().config.LINE_WIDTH*1.5)
+        pen.setWidth(int(self.window.parent().config.LINE_WIDTH*1.5))
         self.setPen(pen)
 
     def unsetSelected(self):
