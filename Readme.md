@@ -2,13 +2,15 @@
 
 Whether for story-writing, process-management or simply keeping tracks of interacting chains of events, LoreGanizer is designed to be a tool for easy creation, edition and visualization of intertwined timelines. 
 
-Visualization is akin to the way public transportation/metro lines are often represented, to ensure readability.
+Visualization is akin to the way public transportation/metro lines are often represented.
+
+Note that the background color can be changed from the Preferences > Theme menu. Font colors of other elements can be changed from their respective menus.
 
 # General Description
 
 ## Events
 
-It allows to represent events as nodes. An event has:
+Events are represented as nodes. An event has:
 * a date, which defines its horizontal position
 * a height, which defines its vertical position
 * a short description (50 characters at most), which will be displayed on screen
@@ -18,26 +20,33 @@ It allows to represent events as nodes. An event has:
 
 ## Timelines
 
-Timelines are sets of connected events. The events are necessarily ordered (by date) in a timeline (time travel is not possible yet).
+Timelines are sets of connected events. The events are necessarily ordered (by date) in a timeline (time travel not possible yet).
 
-Note that colors are fully customizeable.
+Timeline colors are fully customizeable.
 
 ![GH](https://user-images.githubusercontent.com/22815154/170842128-8d306c3a-ff92-4f17-bef9-581ceb3266cc.png)
 
 # How to use ?
 ## Install and run
 
-
-This was tested and made using Python 3.9. Using a virtualenv is recommended.
+This was tested and made using Python 3.9+. Using a virtualenv is recommended. For Linux users:
 
     git clone https://github.com/RomanBresson/LoreGanizer
     cd LoreGanizer
+    python -m venv .venv
+
+    #For Linux, use the following line
+    #source .venv/bin/activate
+    
+    #For Windows, use the following line
+    #.venv\Scripts\activate
+    
     pip install -r requirements.txt
     python src/App.py
 
 ## Session handling
 
-You can create, save, and load sessions using the toolbar. The files are saved in the "saves" directory and can be edited manually, as long as they remain coherent.
+You can create, save, and load work sessions using the toolbar. The files are saved in the "saves" directory as .json and can be edited manually, as long as they remain coherent.
 
 ## Handling events
 
@@ -56,7 +65,6 @@ This opens an editor which allows you to
 * edit the date, height, and short description of the event
 * display and edit the long description by clicking on the associated button
 * select the timelines to which the event belongs
-
 
 ## Handling timelines
 
