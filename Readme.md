@@ -26,10 +26,15 @@ Timeline colors are fully customizeable.
 
 ![GH](https://user-images.githubusercontent.com/22815154/170842128-8d306c3a-ff92-4f17-bef9-581ceb3266cc.png)
 
-# How to use ?
-## Install and run
+# How to use?
 
-This was tested and made using Python 3.9+. Using a virtualenv is recommended. For Linux users:
+## Installation
+
+### Executable
+A Windows .exe file is available.
+
+### Building from source: 
+This was tested and made using Python 3.9+. Using a virtualenv is recommended.
 
     git clone https://github.com/RomanBresson/LoreGanizer
     cd LoreGanizer
