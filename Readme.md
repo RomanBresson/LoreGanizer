@@ -53,7 +53,7 @@ This was tested and made using Python 3.9+. Using a virtualenv is recommended.
 
 You can create, save, and load work sessions using the toolbar. Sessions are saved as .json and can be edited manually, as long as they remain coherent.
 
-If you are using the executable, the save files are in C:\Users\<username>\AppData\Local\Temp\saves.
+If you are using the executable, the save files are in C:\Users\\<username\>\AppData\Local\Temp\saves.
 
 If built from source, the save files are in the "saves" directory.
 
