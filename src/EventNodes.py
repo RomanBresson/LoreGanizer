@@ -124,6 +124,7 @@ class EventNode(QGraphicsEllipseItem):
         self.recompute_lines()
         self.window.recompute_size()
         self.unsetSelected()
+        self.window.parent().sideMenu.events_list.update_events()
         return super().mouseReleaseEvent(change)
     
     def recompute_lines(self):
