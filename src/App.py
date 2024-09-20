@@ -100,12 +100,15 @@ class Window(QWidget):
     def contextMenuEvent(self, mouseEvent):
         contextMenu = QMenu(self)
         newEv = contextMenu.addAction("New event")
+        newTL = contextMenu.addAction("New timeline")
         action = contextMenu.exec_(self.mapToGlobal(mouseEvent.pos()))
         if action==newEv:
             pos = self.view.mapToScene(mouseEvent.pos())
             date = pos.x()/self.parent().config.DILATION_FACTOR_DATE
             height = pos.y()/self.parent().config.DILATION_FACTOR_HEIGHT
             self.parent().create_event(date, height)
+        elif action==newTL:
+            self.parent().create_timeline()
 
     def recompute_lines(self, list_of_timelines=None):
         if list_of_timelines is None:
